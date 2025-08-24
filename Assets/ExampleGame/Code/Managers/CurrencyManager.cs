@@ -5,18 +5,12 @@ using UnityEngine;
 
 public class CurrencyManager : IBaseEventReceiver
 {
-    public CurrencyManager()
-    {
-        
-    }
-    
+    public CurrencyManager() { }
+
     public void OnEvent(IEvent @event)
     {
         throw new System.NotImplementedException();
     }
 
-    public void Init()
-    {
-        
-    }
+    public void Init() { }
 }

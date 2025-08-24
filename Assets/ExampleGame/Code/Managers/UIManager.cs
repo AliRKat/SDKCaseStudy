@@ -18,14 +18,9 @@ public class UIManager : MonoBehaviour
         DontDestroyOnLoad(this);
     }
 
-    public Transform GetWindowParent()
-    {
-        return windowParent;
-    }
-
     public void HandleGameAction(GameAction action, object data = null)
     {
-        Debug.Log($"[UIManager] Handling GameAction: {action}");
+        Debug.Log($"[UIManager][HandleGameAction] Handling GameAction: {action}");
 
         switch (action)
         {
@@ -62,7 +57,7 @@ public class UIManager : MonoBehaviour
         if (prefab == null)
         {
             Debug.LogError(
-                $"[UIManager] Failed to load window prefab: {WindowResourcePath}{windowName}"
+                $"[UIManager][LoadPopUpWindow] Failed to load window prefab: {WindowResourcePath}{windowName}"
             );
             return;
         }
@@ -76,6 +71,6 @@ public class UIManager : MonoBehaviour
             controller.Init(data);
         }
 
-        Debug.Log($"[UIManager] Loaded popup window: {windowName}");
+        Debug.Log($"[UIManager][LoadPopUpWindow] Loaded popup window: {windowName}");
     }
 }
