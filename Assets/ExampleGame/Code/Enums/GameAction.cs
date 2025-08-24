@@ -7,4 +7,5 @@ public enum GameAction
     ShowSingleOffer = 5,
     ShowChainedOffer = 6,
     ShowEndlessOffer = 7,
+    CloseWindow = 8,
 }

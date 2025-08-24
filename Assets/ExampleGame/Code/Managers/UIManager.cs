@@ -4,23 +4,23 @@ using Code.Events;
 using Core;
 using UnityEngine;
 
-public class UIManager : IBaseEventReceiver
+public class UIManager : MonoBehaviour
 {
-    private EventBus eventBus;
+    public static UIManager Instance;
+    private const string WindowResourcePath = "UI/Windows/";
 
-    public UIManager(EventBus eventBus)
+    [SerializeField]
+    private Transform windowParent;
+
+    void Awake()
     {
-        this.eventBus = eventBus;
+        Instance = this;
+        DontDestroyOnLoad(this);
     }
 
-    public void Init()
+    public Transform GetWindowParent()
     {
-        Debug.Log("[UIManager] Initialized");
-    }
-
-    public void OnEvent(IEvent @event)
-    {
-        Debug.Log($"[UIManager] Event received: {@event.GetType().Name}");
+        return windowParent;
     }
 
     public void HandleGameAction(GameAction action, object data = null)
@@ -30,20 +30,52 @@ public class UIManager : IBaseEventReceiver
         switch (action)
         {
             case GameAction.ShowSingleOffer:
-                eventBus.Raise(new OnShowSingleOffer());
+                GameManager.Instance.EventBus.Raise(new OnShowSingleOffer());
                 break;
 
             case GameAction.ShowChainedOffer:
-                eventBus.Raise(new OnShowChainedOffer());
+                GameManager.Instance.EventBus.Raise(new OnShowChainedOffer());
                 break;
 
             case GameAction.ShowEndlessOffer:
-                eventBus.Raise(new OnShowEndlessOffer());
+                GameManager.Instance.EventBus.Raise(new OnShowEndlessOffer());
+                break;
+
+            case GameAction.CloseWindow:
+                if (data is BaseWindowController window)
+                {
+                    window.Close();
+                }
                 break;
 
             default:
                 Debug.LogWarning($"[UIManager][HandleGameAction] Unhandled action: {action}");
                 break;
         }
+    }
+
+    public void LoadPopUpWindow(WindowType windowType, object data = null)
+    {
+        string windowName = windowType.ToString();
+        var prefab = Resources.Load<GameObject>($"{WindowResourcePath}{windowName}");
+
+        if (prefab == null)
+        {
+            Debug.LogError(
+                $"[UIManager] Failed to load window prefab: {WindowResourcePath}{windowName}"
+            );
+            return;
+        }
+
+        var instance = UnityEngine.Object.Instantiate(prefab, windowParent);
+        instance.name = windowName;
+
+        var controller = instance.GetComponent<BaseWindowController>();
+        if (controller != null)
+        {
+            controller.Init(data);
+        }
+
+        Debug.Log($"[UIManager] Loaded popup window: {windowName}");
     }
 }

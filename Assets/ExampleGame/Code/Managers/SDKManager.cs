@@ -19,8 +19,15 @@ namespace Code.Core
             switch (@event)
             {
                 case OnShowSingleOffer onShowSingleOffer:
+                    UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                    UnityEngine.Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    break;
                 case OnShowChainedOffer onShowChainedOffer:
+                    UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer);
+                    UnityEngine.Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    break;
                 case OnShowEndlessOffer onShowEndlessOffer:
+                    UIManager.Instance.LoadPopUpWindow(WindowType.EndlessOffer);
                     UnityEngine.Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
                     break;
             }

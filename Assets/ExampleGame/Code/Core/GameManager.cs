@@ -9,7 +9,6 @@ namespace Code.Core
         public CurrencyManager CurrencyManager;
         public EventBus EventBus;
         public SDKManager SDKManager;
-        public UIManager UIManager;
 
         void Awake()
         {
@@ -44,14 +43,12 @@ namespace Code.Core
         {
             CurrencyManager = new CurrencyManager();
             SDKManager = new SDKManager(EventBus);
-            UIManager = new UIManager(EventBus);
         }
 
         void InitObjects()
         {
             CurrencyManager.Init();
             SDKManager.Init();
-            UIManager.Init();
 
             SubscribeToEvents();
         }
