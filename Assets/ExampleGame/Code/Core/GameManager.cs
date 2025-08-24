@@ -28,6 +28,16 @@ namespace Code.Core
             CreateObjects();
             InitObjects();
             Debug.Log("[GameManager][Init] Initialized successfully!");
+
+            StartCoroutine(
+                SceneHandler.LoadSceneAsync(
+                    GameScene.Home,
+                    () =>
+                    {
+                        Debug.Log("[GameManager][Init] Home scene loaded.");
+                    }
+                )
+            );
         }
 
         void CreateObjects()
