@@ -19,16 +19,22 @@ namespace Code.Core
 
         void Start()
         {
+            Init();
+        }
+
+        void Init()
+        {
             EventBus = new EventBus();
             CreateObjects();
             InitObjects();
+            Debug.Log("[GameManager][Init] Initialized successfully!");
         }
 
         void CreateObjects()
         {
             CurrencyManager = new CurrencyManager();
-            SDKManager = new SDKManager();
-            UIManager = new UIManager();
+            SDKManager = new SDKManager(EventBus);
+            UIManager = new UIManager(EventBus);
         }
 
         void InitObjects()
@@ -36,6 +42,18 @@ namespace Code.Core
             CurrencyManager.Init();
             SDKManager.Init();
             UIManager.Init();
+
+            SubscribeToEvents();
+        }
+
+        void OnDestroy()
+        {
+            SDKManager.UnsubscribeFromEvents();
+        }
+
+        void SubscribeToEvents()
+        {
+            SDKManager.SubscribeToEvents();
         }
     }
 }

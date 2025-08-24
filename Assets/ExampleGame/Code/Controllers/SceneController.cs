@@ -1,18 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
+using Code.UI.Buttons;
 using UnityEngine;
 
 public class SceneController : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [Header("Game Action Buttons")]
+    [SerializeField]
+    private GameActionButton singleOfferButton;
+
+    [SerializeField]
+    private GameActionButton chainedOfferButton;
+
+    [SerializeField]
+    private GameActionButton endlessOfferButton;
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        singleOfferButton.RegisterClick(GameAction.ShowSingleOffer);
+        chainedOfferButton.RegisterClick(GameAction.ShowChainedOffer);
+        endlessOfferButton.RegisterClick(GameAction.ShowEndlessOffer);
     }
 }
