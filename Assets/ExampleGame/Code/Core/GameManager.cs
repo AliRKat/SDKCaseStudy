@@ -1,3 +1,4 @@
+using Code.Core;
 using UnityEngine;
 
 namespace Code.Core
@@ -26,11 +27,15 @@ namespace Code.Core
         void CreateObjects()
         {
             CurrencyManager = new CurrencyManager();
+            SDKManager = new SDKManager();
+            UIManager = new UIManager();
         }
 
         void InitObjects()
         {
             CurrencyManager.Init();
+            SDKManager.Init();
+            UIManager.Init();
         }
     }
 }

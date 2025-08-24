@@ -56,5 +56,21 @@
         "temp/": true,
         "Temp/": true
     },
+
+    // Kaydettiğinde format
+    "editor.formatOnSave": true,
+
+    // C# için CSharpier'i kullan
+    "[csharp]": {
+        "editor.defaultFormatter": "csharpier.csharpier-vscode"
+    },
+
+    // Kaydettiğinde cleanup
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+        "source.fixAll": "explicit"
+    },
+
+    // Unity çözüm dosyası
     "dotnet.defaultSolution": "VoodooSeniorSDKCaseStudy.sln"
 }
