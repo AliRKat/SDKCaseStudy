@@ -1,6 +1,8 @@
 using Code.Core;
 using Code.Events;
 using Core;
+using ExampleGame.Code.Enums;
+using ExampleGame.Code.Events;
 using SDK.Code.Core;
 using UnityEngine;
 
@@ -33,6 +35,11 @@ namespace ExampleGame.Code.Managers {
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
                     voodooSDKInstance.OfferSystem.GetEndlessOffers();
                     break;
+                case OnShowMultipleOffer onShowMultipleOffer:
+                    UIManager.Instance.LoadPopUpWindow(WindowType.MultipleOffer);
+                    Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    voodooSDKInstance.OfferSystem.GetMultipleOffers();
+                    break;
             }
         }
 
@@ -47,12 +54,14 @@ namespace ExampleGame.Code.Managers {
             eventBus.Register<OnShowSingleOffer>(this);
             eventBus.Register<OnShowChainedOffer>(this);
             eventBus.Register<OnShowEndlessOffer>(this);
+            eventBus.Register<OnShowMultipleOffer>(this);
         }
 
         public void UnsubscribeFromEvents() {
             eventBus.Unregister<OnShowSingleOffer>(this);
             eventBus.Unregister<OnShowChainedOffer>(this);
             eventBus.Unregister<OnShowEndlessOffer>(this);
+            eventBus.Unregister<OnShowMultipleOffer>(this);
         }
     }
 

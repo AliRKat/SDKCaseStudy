@@ -1,5 +1,8 @@
-public enum GameScene
-{
-    Load,
-    Home,
+namespace ExampleGame.Code.Enums {
+
+    public enum GameScene {
+        Load,
+        Home
+    }
+
 }

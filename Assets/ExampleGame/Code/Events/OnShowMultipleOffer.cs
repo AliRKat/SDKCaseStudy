@@ -2,7 +2,7 @@ using Core;
 
 namespace ExampleGame.Code.Events {
 
-    public struct OnShowSingleOffer : IEvent {
+    public struct OnShowMultipleOffer : IEvent {
     }
 
 }

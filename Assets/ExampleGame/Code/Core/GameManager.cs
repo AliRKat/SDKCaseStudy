@@ -1,29 +1,29 @@
-using Code.Core;
+using ExampleGame.Code.Enums;
 using ExampleGame.Code.Managers;
 using UnityEngine;
 
-namespace Code.Core
-{
-    public class GameManager : MonoBehaviour
-    {
+namespace Code.Core {
+
+    public class GameManager : MonoBehaviour {
         public static GameManager Instance;
         public CurrencyManager CurrencyManager;
         public EventBus EventBus;
         public SDKManager SDKManager;
 
-        void Awake()
-        {
+        private void Awake() {
             Instance = this;
             DontDestroyOnLoad(this);
         }
 
-        void Start()
-        {
+        private void Start() {
             Init();
         }
 
-        void Init()
-        {
+        private void OnDestroy() {
+            SDKManager.UnsubscribeFromEvents();
+        }
+
+        private void Init() {
             EventBus = new EventBus();
             CreateObjects();
             InitObjects();
@@ -32,36 +32,26 @@ namespace Code.Core
             StartCoroutine(
                 SceneHandler.LoadSceneAsync(
                     GameScene.Home,
-                    () =>
-                    {
-                        Debug.Log("[GameManager][Init] Home scene loaded.");
-                    }
+                    () => { Debug.Log("[GameManager][Init] Home scene loaded."); }
                 )
             );
         }
 
-        void CreateObjects()
-        {
+        private void CreateObjects() {
             CurrencyManager = new CurrencyManager();
             SDKManager = new SDKManager(EventBus);
         }
 
-        void InitObjects()
-        {
+        private void InitObjects() {
             CurrencyManager.Init();
             SDKManager.Init();
 
             SubscribeToEvents();
         }
 
-        void OnDestroy()
-        {
-            SDKManager.UnsubscribeFromEvents();
-        }
-
-        void SubscribeToEvents()
-        {
+        private void SubscribeToEvents() {
             SDKManager.SubscribeToEvents();
         }
     }
+
 }

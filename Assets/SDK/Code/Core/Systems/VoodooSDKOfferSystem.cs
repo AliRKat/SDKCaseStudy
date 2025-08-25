@@ -25,6 +25,11 @@ namespace SDK.Code.Core.Systems {
             return null;
         }
 
+        public List<Offer> GetMultipleOffers() {
+            Log.Info("[VoodooSDKOfferSystem][GetMultipleOffers] Getting multiple offers.");
+            return null;
+        }
+
         public bool ValidateOffer(string offerId) {
             return false;
         }

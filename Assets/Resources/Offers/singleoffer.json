@@ -1,0 +1,133 @@
+{
+  "offers": [
+    {
+      "id": "coins_level_5",
+      "type": "Single",
+      "trigger": "LEVEL_COMPLETE",
+      "targetSegments": {
+        "retention": "new_player"
+      },
+      "price": {
+        "currency": "Gems",
+        "amount": 20
+      },
+      "rewards": [
+        {
+          "itemId": "Coins",
+          "amount": 300
+        }
+      ],
+      "nextOfferId": null,
+      "conditions": [
+        {
+          "type": "LevelAtLeast",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "id": "energy_stage3",
+      "type": "Single",
+      "trigger": "STAGE_COMPLETE",
+      "targetSegments": {
+        "geo": "TR"
+      },
+      "price": {
+        "currency": "Coins",
+        "amount": 200
+      },
+      "rewards": [
+        {
+          "itemId": "Energy",
+          "amount": 10
+        }
+      ],
+      "nextOfferId": null,
+      "conditions": [
+        {
+          "type": "StageCompleted",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "id": "starter_pack_once",
+      "type": "Single",
+      "trigger": "SESSION_START",
+      "targetSegments": {
+        "spending": "f2p"
+      },
+      "price": {
+        "currency": "Gems",
+        "amount": 100
+      },
+      "rewards": [
+        {
+          "itemId": "Coins",
+          "amount": 1000
+        },
+        {
+          "itemId": "Energy",
+          "amount": 20
+        }
+      ],
+      "nextOfferId": null,
+      "conditions": [
+        {
+          "type": "HasNotPurchased",
+          "offerId": "starter_pack_once"
+        }
+      ]
+    },
+    {
+      "id": "daily_bonus_offer",
+      "type": "Single",
+      "trigger": "SESSION_START",
+      "targetSegments": {},
+      "price": {
+        "currency": "Gems",
+        "amount": 10
+      },
+      "rewards": [
+        {
+          "itemId": "Coins",
+          "amount": 150
+        }
+      ],
+      "nextOfferId": null,
+      "conditions": [
+        {
+          "type": "CooldownSeconds",
+          "seconds": 86400
+        }
+      ]
+    },
+    {
+      "id": "diamonds_if_enough_gems",
+      "type": "Single",
+      "trigger": "LEVEL_COMPLETE",
+      "targetSegments": {
+        "spending": "whale",
+        "geo": "EU"
+      },
+      "price": {
+        "currency": "Gems",
+        "amount": 50
+      },
+      "rewards": [
+        {
+          "itemId": "Diamond",
+          "amount": 5
+        }
+      ],
+      "nextOfferId": null,
+      "conditions": [
+        {
+          "type": "HasCurrency",
+          "currency": "Gems",
+          "amount": 50
+        }
+      ]
+    }
+  ]
+}

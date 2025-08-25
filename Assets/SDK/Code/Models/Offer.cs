@@ -39,6 +39,7 @@ namespace SDK.Code.Models {
 
     public enum OfferType {
         Single,
+        Multiple,
         Chained,
         Endless
     }

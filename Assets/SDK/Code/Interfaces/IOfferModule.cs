@@ -5,6 +5,7 @@ namespace SDK.Code.Interfaces {
 
     public interface IOfferModule {
         public Offer GetSingleOffer();
+        public List<Offer> GetMultipleOffers();
         public List<Offer> GetChainedOffers();
         public List<Offer> GetEndlessOffers();
         public bool ValidateOffer(string offerId);
