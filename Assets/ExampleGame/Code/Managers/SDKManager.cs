@@ -1,52 +1,59 @@
-using System.Diagnostics;
+using Code.Core;
 using Code.Events;
 using Core;
+using SDK.Code.Core;
 using UnityEngine;
 
-namespace Code.Core
-{
-    public class SDKManager : IBaseEventReceiver
-    {
-        private EventBus eventBus;
+namespace ExampleGame.Code.Managers {
 
-        public SDKManager(EventBus eventBus)
-        {
+    public class SDKManager : IBaseEventReceiver {
+        private readonly string AppKey = "VoodooSDKAppKey";
+        private readonly string ServerURL = "http://localhost:5000/";
+        private EventBus eventBus;
+        private VoodooSDK voodooSDKInstance;
+
+        public SDKManager(EventBus eventBus) {
             this.eventBus = eventBus;
         }
 
-        public void OnEvent(IEvent @event)
-        {
-            switch (@event)
-            {
+        public void OnEvent(IEvent @event) {
+            switch (@event) {
                 case OnShowSingleOffer onShowSingleOffer:
                     UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
-                    UnityEngine.Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    voodooSDKInstance.OfferSystem.GetSingleOffer();
                     break;
                 case OnShowChainedOffer onShowChainedOffer:
                     UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer);
-                    UnityEngine.Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    voodooSDKInstance.OfferSystem.GetChainedOffers();
                     break;
                 case OnShowEndlessOffer onShowEndlessOffer:
                     UIManager.Instance.LoadPopUpWindow(WindowType.EndlessOffer);
-                    UnityEngine.Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    voodooSDKInstance.OfferSystem.GetEndlessOffers();
                     break;
             }
         }
 
-        public void Init() { }
+        public void Init() {
+            voodooSDKInstance = VoodooSDK.Instance;
+            var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
+                .EnableLogging();
+            voodooSDKInstance.Init(sdkConfiguration);
+        }
 
-        public void SubscribeToEvents()
-        {
+        public void SubscribeToEvents() {
             eventBus.Register<OnShowSingleOffer>(this);
             eventBus.Register<OnShowChainedOffer>(this);
             eventBus.Register<OnShowEndlessOffer>(this);
         }
 
-        public void UnsubscribeFromEvents()
-        {
+        public void UnsubscribeFromEvents() {
             eventBus.Unregister<OnShowSingleOffer>(this);
             eventBus.Unregister<OnShowChainedOffer>(this);
             eventBus.Unregister<OnShowEndlessOffer>(this);
         }
     }
+
 }
