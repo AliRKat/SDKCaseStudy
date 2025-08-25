@@ -74,15 +74,15 @@ namespace SDK.Code.Core.Systems {
 
                 var dtoWrapper = JsonUtility.FromJson<OfferListDTO>(json);
                 if (dtoWrapper == null || dtoWrapper.offers == null) {
-                    Debug.LogError("[OfferSystem] Failed to parse offers from JSON!");
+                    Log.Error("[OfferSystem] Failed to parse offers from JSON!");
                     return;
                 }
 
                 _offers = OfferParser.LoadOffersFromJson($"Offers/{resourceKey}");
-                Debug.Log($"[OfferSystem] Loaded {_offers.Count} offers for {type}");
+                Log.Info($"[OfferSystem] Loaded {_offers.Count} offers for {type}");
 
                 foreach (var offer in _offers)
-                    Debug.Log(offer.ToString());
+                    Log.Debug(offer.ToString());
             });
         }
     }

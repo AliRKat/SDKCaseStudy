@@ -16,10 +16,6 @@ namespace SDK.Code.Core.Handlers {
             if (_configuration.IsLoggingEnabled()) UnityEngine.Debug.Log("[Debug]" + TAG + message);
         }
 
-        internal void Verbose(string message) {
-            if (_configuration.IsLoggingEnabled()) UnityEngine.Debug.Log("[Verbose]" + TAG + message);
-        }
-
         internal void Error(string message) {
             if (_configuration.IsLoggingEnabled()) UnityEngine.Debug.LogError("[Error]" + TAG + message);
         }
