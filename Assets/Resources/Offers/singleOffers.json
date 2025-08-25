@@ -21,7 +21,7 @@
       "conditions": [
         {
           "type": "LevelAtLeast",
-          "value": 5
+          "value": "5"
         }
       ]
     },
@@ -46,7 +46,7 @@
       "conditions": [
         {
           "type": "StageCompleted",
-          "value": 3
+          "value": "3"
         }
       ]
     },
@@ -75,7 +75,7 @@
       "conditions": [
         {
           "type": "HasNotPurchased",
-          "offerId": "starter_pack_once"
+          "value": "starter_pack_once"
         }
       ]
     },
@@ -98,12 +98,12 @@
       "conditions": [
         {
           "type": "CooldownSeconds",
-          "seconds": 86400
+          "value": "86400"
         }
       ]
     },
     {
-      "id": "diamonds_if_enough_gems",
+      "id": "tokens_if_enough_gems",
       "type": "Single",
       "trigger": "LEVEL_COMPLETE",
       "targetSegments": {
@@ -116,7 +116,7 @@
       },
       "rewards": [
         {
-          "itemId": "Diamond",
+          "itemId": "Tokens",
           "amount": 5
         }
       ],
@@ -124,8 +124,44 @@
       "conditions": [
         {
           "type": "HasCurrency",
-          "currency": "Gems",
-          "amount": 50
+          "value": "Gems:50"
+        }
+      ]
+    },
+    {
+      "id": "big_bundle",
+      "type": "Single",
+      "trigger": "LEVEL_COMPLETE",
+      "targetSegments": {
+        "retention": "returning"
+      },
+      "price": {
+        "currency": "Gems",
+        "amount": 200
+      },
+      "rewards": [
+        {
+          "itemId": "Coins",
+          "amount": 2000
+        },
+        {
+          "itemId": "Tokens",
+          "amount": 20
+        }
+      ],
+      "nextOfferId": null,
+      "conditions": [
+        {
+          "type": "LevelAtLeast",
+          "value": "10"
+        },
+        {
+          "type": "HasCurrency",
+          "value": "Gems:200"
+        },
+        {
+          "type": "CooldownSeconds",
+          "value": "7200"
         }
       ]
     }

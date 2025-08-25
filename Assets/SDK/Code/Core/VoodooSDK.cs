@@ -1,4 +1,5 @@
 using SDK.Code.Core.Handlers;
+using SDK.Code.Core.Services;
 using SDK.Code.Core.Systems;
 using SDK.Code.Interfaces;
 using UnityEngine;
@@ -18,6 +19,8 @@ namespace SDK.Code.Core {
         ///     Exposes functionality to get Offers
         /// </summary>
         public IOfferModule OfferSystem;
+
+        internal VoodooSDKRequestService RequestService;
 
         private VoodooSDKLogHandler SDKLogHandler;
 
@@ -56,7 +59,8 @@ namespace SDK.Code.Core {
         }
 
         private void InitSubSystems() {
-            OfferSystem = new VoodooSDKOfferSystem(Configuration, SDKLogHandler);
+            RequestService = new VoodooSDKRequestService(SDKLogHandler);
+            OfferSystem = new VoodooSDKOfferSystem(Configuration, SDKLogHandler, RequestService);
             EventSystem = new VoodooSDKEventSystem(Configuration, SDKLogHandler);
         }
     }
