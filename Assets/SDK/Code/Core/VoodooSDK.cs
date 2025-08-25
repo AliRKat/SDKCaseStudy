@@ -20,8 +20,7 @@ namespace SDK.Code.Core {
         /// </summary>
         public IOfferModule OfferSystem;
 
-        internal VoodooSDKRequestService RequestService;
-
+        private VoodooSDKRequestService RequestService;
         private VoodooSDKLogHandler SDKLogHandler;
 
         public static VoodooSDK Instance {
