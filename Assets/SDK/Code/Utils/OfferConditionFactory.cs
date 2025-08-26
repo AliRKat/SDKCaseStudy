@@ -9,7 +9,7 @@ namespace SDK.Code.Utils {
         public static IOfferCondition Create(OfferConditionDTO dto) {
             switch (dto.type) {
                 case "LevelAtLeast":
-                    return new LevelAtLeastCondition(int.Parse(dto.value));
+                    return new LevelAtLeastCondition(dto.value);
                 case "HasCurrency":
                     var parts = dto.value.Split(':');
                     return new HasCurrencyCondition(parts[0], int.Parse(parts[1]));
@@ -24,14 +24,19 @@ namespace SDK.Code.Utils {
     }
 
     public class LevelAtLeastCondition : IOfferCondition {
-        private readonly int _minLevel;
+        private readonly int _requiredLevel;
 
-        public LevelAtLeastCondition(int minLevel) {
-            _minLevel = minLevel;
+        public LevelAtLeastCondition(string value) {
+            if (!int.TryParse(value, out _requiredLevel))
+                _requiredLevel = int.MaxValue; // fallback: invalid config means never eligible
         }
 
         public bool Evaluate(IGameStateProvider state) {
-            return state.GetPlayerLevel() >= _minLevel;
+            var current = state.GetPlayerLevel();
+            Debug.Log(
+                $"[LevelAtLeastCondition] Current={current}, Required={_requiredLevel}, Pass={current >= _requiredLevel}");
+
+            return current >= _requiredLevel;
         }
     }
 

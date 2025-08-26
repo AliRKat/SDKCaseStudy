@@ -19,22 +19,27 @@
       "conditions": []
     },
     {
-      "id": "level_up_offer",
+      "id": "starter_level_3",
       "type": "Single",
       "trigger": "LEVEL_COMPLETE",
       "targetSegments": {},
       "price": {
-        "currency": "Gems",
-        "amount": 20
+        "currency": "Coins",
+        "amount": 50
       },
       "rewards": [
         {
-          "itemId": "Coins",
-          "amount": 300
+          "itemId": "Gems",
+          "amount": 5
         }
       ],
       "nextOfferId": null,
-      "conditions": []
+      "conditions": [
+        {
+          "type": "LevelAtLeast",
+          "value": "3"
+        }
+      ]
     }
   ]
 }

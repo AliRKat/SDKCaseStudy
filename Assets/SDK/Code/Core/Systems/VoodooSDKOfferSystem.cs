@@ -5,7 +5,6 @@ using SDK.Code.Core.Handlers;
 using SDK.Code.Core.Services;
 using SDK.Code.Interfaces;
 using SDK.Code.Models;
-using UnityEngine;
 
 namespace SDK.Code.Core.Systems {
 
@@ -25,27 +24,27 @@ namespace SDK.Code.Core.Systems {
 
         // --- Public API ---
 
-        public void GetSingleOfferManual(Action<Offer> callback) {
+        public void GetSingleOfferManual(IGameStateProvider state, Action<Offer> callback) {
             RequestOffers(OfferType.Single, offers => {
-                var eligible = offers.Where(o => o.Trigger == "MANUAL_SHOW").ToList();
+                var eligible = GetEligibleOffers("MANUAL_SHOW", state);
                 var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
 
                 Log.Info(offer != null
-                    ? $"[OfferSystem][GetSingleOfferManual] Selected Manual Single Offer: {offer.Id}"
-                    : "[OfferSystem][GetSingleOfferManual] No manual single offer found.");
+                    ? $"[OfferSystem] Selected Manual Single Offer: {offer.Id}"
+                    : "[OfferSystem] No manual single offer found.");
 
                 callback?.Invoke(offer);
             });
         }
 
-        public void GetSingleOffer(string trigger, Action<Offer> callback) {
+        public void GetSingleOffer(string trigger, IGameStateProvider state, Action<Offer> callback) {
             RequestOffers(OfferType.Single, offers => {
-                var eligible = offers.Where(o => o.Trigger == trigger).ToList();
+                var eligible = GetEligibleOffers(trigger, state);
                 var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
 
                 Log.Info(offer != null
-                    ? $"[OfferSystem][GetSingleOffer] Selected Single Offer for {trigger}: {offer.Id}"
-                    : $"[OfferSystem][GetSingleOffer] No eligible single offer for {trigger}");
+                    ? $"[OfferSystem] Selected Single Offer for {trigger}: {offer.Id}"
+                    : $"[OfferSystem] No eligible single offer for {trigger}");
 
                 callback?.Invoke(offer);
             });
@@ -74,37 +73,10 @@ namespace SDK.Code.Core.Systems {
                 _ => "singleOffers"
             };
 
-            voodooSDKRequestService.GetOffers(resourceKey, json => {
-                if (string.IsNullOrEmpty(json)) {
-                    Log.Error("[OfferSystem] No offers returned!");
-                    callback?.Invoke(new List<Offer>());
-                    return;
-                }
-
-                var dtoWrapper = JsonUtility.FromJson<OfferListDTO>(json);
-                if (dtoWrapper?.offers == null) {
-                    Log.Error("[OfferSystem] Failed to parse offers from JSON!");
-                    callback?.Invoke(new List<Offer>());
-                    return;
-                }
-
-                var mapped = dtoWrapper.offers.Select(dto =>
-                    new Offer(
-                        dto.id,
-                        ParseOfferType(dto.type),
-                        dto.trigger,
-                        dto.targetSegments,
-                        new OfferPrice(dto.price.currency, dto.price.amount),
-                        dto.rewards?.ConvertAll(r => new OfferReward(r.itemId, r.amount)) ?? new List<OfferReward>(),
-                        dto.nextOfferId,
-                        null
-                    )
-                ).ToList();
-
-                _offers = mapped;
+            voodooSDKRequestService.GetOffers(resourceKey, offers => {
+                _offers = offers.Where(o => o.Type == type).ToList();
                 BuildIndexes();
-
-                callback?.Invoke(mapped);
+                callback?.Invoke(_offers);
             });
         }
 
@@ -130,10 +102,22 @@ namespace SDK.Code.Core.Systems {
             foreach (var o in _offers) _byId[o.Id] = o;
         }
 
-        private List<Offer> GetEligibleOffers(string trigger) {
+        private List<Offer> GetEligibleOffers(string trigger, IGameStateProvider state) {
+            var result = new List<Offer>();
+
             if (_byTrigger.TryGetValue(trigger, out var candidates))
-                return candidates;
-            return new List<Offer>();
+                foreach (var o in candidates)
+                    if (o.Validate(state))
+                        result.Add(o);
+
+            if (!_byTrigger.TryGetValue(string.Empty, out var alwaysOn)) return result;
+            {
+                foreach (var o in alwaysOn)
+                    if (o.Validate(state))
+                        result.Add(o);
+            }
+
+            return result;
         }
     }
 

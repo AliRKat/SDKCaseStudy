@@ -5,8 +5,8 @@ using SDK.Code.Models;
 namespace SDK.Code.Interfaces {
 
     public interface IOfferModule {
-        public void GetSingleOfferManual(Action<Offer> callback);
-        public void GetSingleOffer(string trigger, Action<Offer> callback);
+        public void GetSingleOfferManual(IGameStateProvider state, Action<Offer> callback);
+        public void GetSingleOffer(string trigger, IGameStateProvider state, Action<Offer> callback);
         public List<Offer> GetMultipleOffers();
         public List<Offer> GetChainedOffers();
 

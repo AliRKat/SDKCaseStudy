@@ -40,14 +40,14 @@ namespace Code.Core {
 
         private void CreateObjects() {
             CurrencyManager = new CurrencyManager();
-            SDKManager = new SDKManager(EventBus, CurrencyManager, GameplayManager);
             GameplayManager = new GameplayManager();
+            SDKManager = new SDKManager(EventBus, CurrencyManager, GameplayManager);
         }
 
         private void InitObjects() {
             CurrencyManager.Init();
-            SDKManager.Init();
             GameplayManager.Init();
+            SDKManager.Init();
 
             SubscribeToEvents();
         }

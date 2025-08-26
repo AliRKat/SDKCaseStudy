@@ -27,7 +27,7 @@ namespace ExampleGame.Code.Managers {
         public void OnEvent(IEvent @event) {
             switch (@event) {
                 case OnShowSingleOffer onShowSingleOffer:
-                    voodooSDKInstance.OfferSystem.GetSingleOfferManual(offer => {
+                    voodooSDKInstance.OfferSystem.GetSingleOfferManual(this, offer => {
                         if (offer != null) {
                             Debug.Log($"[SDKManager] Showing manual offer: {offer.Id}");
                             UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
@@ -53,7 +53,7 @@ namespace ExampleGame.Code.Managers {
                     voodooSDKInstance.OfferSystem.GetMultipleOffers();
                     break;
                 case OnLevelComplete onLevelComplete:
-                    voodooSDKInstance.OfferSystem.GetSingleOffer("LEVEL_COMPLETE", offer => {
+                    voodooSDKInstance.OfferSystem.GetSingleOffer("LEVEL_COMPLETE", this, offer => {
                         if (offer != null) {
                             Debug.Log($"[SDKManager] Showing level complete offer: {offer.Id}");
                             UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);

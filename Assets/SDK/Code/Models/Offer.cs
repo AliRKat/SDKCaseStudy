@@ -38,9 +38,11 @@ namespace SDK.Code.Models {
         ///     Validates whether this offer is eligible for the given game state.
         /// </summary>
         public bool Validate(IGameStateProvider state) {
-            foreach (var condition in Conditions)
-                if (!condition.Evaluate(state))
-                    return false;
+            foreach (var condition in Conditions) {
+                var ok = condition.Evaluate(state);
+                if (!ok) return false;
+            }
+
             return true;
         }
 

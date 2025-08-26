@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
+using SDK.Code.Models;
 
 namespace SDK.Code.Interfaces {
 
     public interface IRequestService {
-        void GetOffers(string resourceKey, Action<string> onResponse);
+        public void GetOffers(string resourceKey, Action<List<Offer>> onResponse);
     }
 
 }

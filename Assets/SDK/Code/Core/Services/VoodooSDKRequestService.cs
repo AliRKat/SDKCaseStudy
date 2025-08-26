@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using SDK.Code.Core.Handlers;
 using SDK.Code.Interfaces;
+using SDK.Code.Models;
+using SDK.Code.Utils;
 using UnityEngine;
 
 namespace SDK.Code.Core.Services {
@@ -14,16 +18,24 @@ namespace SDK.Code.Core.Services {
             Log = logHandler;
         }
 
-        public void GetOffers(string resourceKey, Action<string> onResponse) {
+        public void GetOffers(string resourceKey, Action<List<Offer>> onResponse) {
             var jsonAsset = Resources.Load<TextAsset>($"{_resourcePath}{resourceKey}");
             if (jsonAsset == null) {
-                Log.Error($"[VoodooSDKRequestService] Failed to load JSON at {_resourcePath}{resourceKey}");
-                onResponse?.Invoke(null);
+                Log.Error($"[RequestService] Failed to load JSON at {_resourcePath}{resourceKey}");
+                onResponse?.Invoke(new List<Offer>());
                 return;
             }
 
-            Log.Info($"[VoodooSDKRequestService][GetOffers] Returning mock offer data from {resourceKey}.json");
-            onResponse?.Invoke(jsonAsset.text);
+            Log.Info($"[RequestService] Returning parsed offers from {resourceKey}.json");
+
+            var dtoWrapper = JsonUtility.FromJson<OfferListDTO>(jsonAsset.text);
+            if (dtoWrapper == null || dtoWrapper.offers == null) {
+                onResponse?.Invoke(new List<Offer>());
+                return;
+            }
+
+            var offers = dtoWrapper.offers.Select(OfferParser.MapOffer).ToList();
+            onResponse?.Invoke(offers);
         }
     }
 

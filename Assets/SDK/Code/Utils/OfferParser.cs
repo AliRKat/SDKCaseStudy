@@ -25,16 +25,17 @@ namespace SDK.Code.Utils {
             return dtoWrapper.offers.Select(MapOffer).ToList();
         }
 
-        private static Offer MapOffer(OfferDTO dto) {
+        public static Offer MapOffer(OfferDTO dto) {
             var price = new OfferPrice(dto.price.currency, dto.price.amount);
             var rewards = dto.rewards?.Select(r => new OfferReward(r.itemId, r.amount)).ToList() ??
                           new List<OfferReward>();
 
-            // Condition mapping (stub, will use factory later)
             var conditions = new List<IOfferCondition>();
             if (dto.conditions != null)
                 foreach (var c in dto.conditions)
                     conditions.Add(OfferConditionFactory.Create(c));
+
+            Debug.Log($"DTO {dto.id} → Conditions count: {dto.conditions?.Count ?? 0}");
 
             return new Offer(
                 dto.id,
