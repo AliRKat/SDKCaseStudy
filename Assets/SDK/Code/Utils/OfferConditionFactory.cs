@@ -33,8 +33,6 @@ namespace SDK.Code.Utils {
 
         public bool Evaluate(IGameStateProvider state) {
             var current = state.GetPlayerLevel();
-            Debug.Log(
-                $"[LevelAtLeastCondition] Current={current}, Required={_requiredLevel}, Pass={current >= _requiredLevel}");
 
             return current >= _requiredLevel;
         }

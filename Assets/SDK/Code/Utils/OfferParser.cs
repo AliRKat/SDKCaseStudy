@@ -35,8 +35,6 @@ namespace SDK.Code.Utils {
                 foreach (var c in dto.conditions)
                     conditions.Add(OfferConditionFactory.Create(c));
 
-            Debug.Log($"DTO {dto.id} → Conditions count: {dto.conditions?.Count ?? 0}");
-
             return new Offer(
                 dto.id,
                 ParseOfferType(dto.type),
