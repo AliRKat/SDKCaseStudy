@@ -26,23 +26,29 @@ namespace SDK.Code.Core.Systems {
         // --- Public API ---
 
         public void GetSingleOfferManual(Action<Offer> callback) {
-            LoadOffers(OfferType.Single);
-            var eligible = GetEligibleOffers("MANUAL_SHOW");
-            var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
-            Log.Info(offer != null
-                ? $"[OfferSystem] Selected Manual Single Offer: {offer.Id}"
-                : "[OfferSystem] No manual single offer found.");
-            callback?.Invoke(offer);
+            RequestOffers(OfferType.Single, offers => {
+                var eligible = offers.Where(o => o.Trigger == "MANUAL_SHOW").ToList();
+                var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
+
+                Log.Info(offer != null
+                    ? $"[OfferSystem][GetSingleOfferManual] Selected Manual Single Offer: {offer.Id}"
+                    : "[OfferSystem][GetSingleOfferManual] No manual single offer found.");
+
+                callback?.Invoke(offer);
+            });
         }
 
         public void GetSingleOffer(string trigger, Action<Offer> callback) {
-            LoadOffers(OfferType.Single);
-            var eligible = GetEligibleOffers(trigger);
-            var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
-            Log.Info(offer != null
-                ? $"[OfferSystem] Selected Single Offer for {trigger}: {offer.Id}"
-                : $"[OfferSystem] No eligible single offer for {trigger}");
-            callback?.Invoke(offer);
+            RequestOffers(OfferType.Single, offers => {
+                var eligible = offers.Where(o => o.Trigger == trigger).ToList();
+                var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
+
+                Log.Info(offer != null
+                    ? $"[OfferSystem][GetSingleOffer] Selected Single Offer for {trigger}: {offer.Id}"
+                    : $"[OfferSystem][GetSingleOffer] No eligible single offer for {trigger}");
+
+                callback?.Invoke(offer);
+            });
         }
 
         public List<Offer> GetChainedOffers() {
@@ -59,7 +65,7 @@ namespace SDK.Code.Core.Systems {
 
         // --- Internal ---
 
-        private void LoadOffers(OfferType type) {
+        private void RequestOffers(OfferType type, Action<List<Offer>> callback) {
             var resourceKey = type switch {
                 OfferType.Single => "singleOffers",
                 OfferType.Multiple => "multipleOffers",
@@ -71,36 +77,34 @@ namespace SDK.Code.Core.Systems {
             voodooSDKRequestService.GetOffers(resourceKey, json => {
                 if (string.IsNullOrEmpty(json)) {
                     Log.Error("[OfferSystem] No offers returned!");
+                    callback?.Invoke(new List<Offer>());
                     return;
                 }
 
                 var dtoWrapper = JsonUtility.FromJson<OfferListDTO>(json);
-                if (dtoWrapper == null || dtoWrapper.offers == null) {
+                if (dtoWrapper?.offers == null) {
                     Log.Error("[OfferSystem] Failed to parse offers from JSON!");
+                    callback?.Invoke(new List<Offer>());
                     return;
                 }
 
-                var mapped = new List<Offer>();
-                foreach (var dto in dtoWrapper.offers) {
-                    var price = new OfferPrice(dto.price.currency, dto.price.amount);
-                    var rewards = dto.rewards != null
-                        ? dto.rewards.ConvertAll(r => new OfferReward(r.itemId, r.amount))
-                        : new List<OfferReward>();
-
-                    mapped.Add(new Offer(
+                var mapped = dtoWrapper.offers.Select(dto =>
+                    new Offer(
                         dto.id,
                         ParseOfferType(dto.type),
                         dto.trigger,
                         dto.targetSegments,
-                        price,
-                        rewards,
+                        new OfferPrice(dto.price.currency, dto.price.amount),
+                        dto.rewards?.ConvertAll(r => new OfferReward(r.itemId, r.amount)) ?? new List<OfferReward>(),
                         dto.nextOfferId,
                         null
-                    ));
-                }
+                    )
+                ).ToList();
 
-                _offers = mapped.Where(o => o.Type == type).ToList();
+                _offers = mapped;
                 BuildIndexes();
+
+                callback?.Invoke(mapped);
             });
         }
 
