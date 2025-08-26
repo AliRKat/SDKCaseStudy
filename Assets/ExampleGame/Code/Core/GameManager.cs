@@ -8,11 +8,13 @@ namespace Code.Core {
         public static GameManager Instance;
         public CurrencyManager CurrencyManager;
         public EventBus EventBus;
+        public GameplayManager GameplayManager;
         public SDKManager SDKManager;
 
         private void Awake() {
             Instance = this;
             DontDestroyOnLoad(this);
+            EventBus = new EventBus();
         }
 
         private void Start() {
@@ -24,7 +26,6 @@ namespace Code.Core {
         }
 
         private void Init() {
-            EventBus = new EventBus();
             CreateObjects();
             InitObjects();
             Debug.Log("[GameManager][Init] Initialized successfully!");
@@ -39,12 +40,14 @@ namespace Code.Core {
 
         private void CreateObjects() {
             CurrencyManager = new CurrencyManager();
-            SDKManager = new SDKManager(EventBus);
+            SDKManager = new SDKManager(EventBus, CurrencyManager, GameplayManager);
+            GameplayManager = new GameplayManager();
         }
 
         private void InitObjects() {
             CurrencyManager.Init();
             SDKManager.Init();
+            GameplayManager.Init();
 
             SubscribeToEvents();
         }

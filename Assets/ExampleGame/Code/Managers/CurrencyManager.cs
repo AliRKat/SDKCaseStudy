@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Code.Core;
 using Core;
 using ExampleGame.Code.Enums;
+using ExampleGame.Code.Events;
 using UnityEngine;
 
 namespace ExampleGame.Code.Managers {
@@ -44,6 +46,7 @@ namespace ExampleGame.Code.Managers {
             var prev = Get(type);
             _balances[type] = Mathf.Max(0, newValue);
             CurrencyChanged?.Invoke(type, prev, _balances[type]);
+            GameManager.Instance.EventBus.Raise(new OnCurrencyChanged(type, prev, _balances[type]));
         }
     }
 

@@ -1,17 +1,20 @@
+using System;
 using System.Collections.Generic;
 using SDK.Code.Models;
 
 namespace SDK.Code.Interfaces {
 
     public interface IOfferModule {
-        public Offer GetSingleOffer();
+        public void GetSingleOfferManual(Action<Offer> callback);
+        public void GetSingleOffer(string trigger, Action<Offer> callback);
         public List<Offer> GetMultipleOffers();
         public List<Offer> GetChainedOffers();
+
         public List<Offer> GetEndlessOffers();
-        public bool ValidateOffer(string offerId);
-        public void PurchaseOffer(string offerId);
-        public bool IsOfferAvailable(string offerId);
-        public List<Offer> GetAllActiveOffers();
+        // public bool ValidateOffer(string offerId);
+        // public void PurchaseOffer(string offerId);
+        // public bool IsOfferAvailable(string offerId);
+        // public List<Offer> GetAllActiveOffers();
     }
 
 }
