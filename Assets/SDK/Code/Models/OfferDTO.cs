@@ -9,16 +9,32 @@ namespace SDK.Code.Models {
     }
 
     [Serializable]
+    public class SegmentEntry {
+        public string key;
+        public string value;
+    }
+
+    [Serializable]
+    public class OfferVariantDTO {
+        public OfferPriceDTO price;
+        public List<OfferRewardDTO> rewards;
+        public List<OfferConditionDTO> conditions;
+        public List<SegmentEntry> segments;
+    }
+
+    [Serializable]
     public class OfferDTO {
         public string id;
-        public string type; // "Single", "Chained", "Endless", "Multiple"
+        public string type;
         public string trigger;
+        public string nextOfferId;
 
         public OfferPriceDTO price;
         public List<OfferRewardDTO> rewards;
-        public string nextOfferId;
         public List<OfferConditionDTO> conditions;
-        public Dictionary<string, string> targetSegments;
+
+        public List<OfferVariantDTO> variants;
+        public List<SegmentEntry> targetSegments;
     }
 
     [Serializable]

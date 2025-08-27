@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using Code.Core;
 using Code.Events;
 using Core;
 using ExampleGame.Code.Enums;
 using ExampleGame.Code.Events;
 using SDK.Code.Core;
+using SDK.Code.Core.Enums;
 using SDK.Code.Interfaces;
 using UnityEngine;
 
@@ -26,7 +28,7 @@ namespace ExampleGame.Code.Managers {
 
         public void OnEvent(IEvent @event) {
             switch (@event) {
-                case OnShowSingleOffer onShowSingleOffer:
+                case OnShowSingleOffer _:
                     voodooSDKInstance.OfferSystem.GetSingleOfferManual(this, offer => {
                         if (offer != null) {
                             Debug.Log($"[SDKManager] Showing manual offer: {offer.Id}");
@@ -37,23 +39,23 @@ namespace ExampleGame.Code.Managers {
                         }
                     });
                     break;
-                case OnShowChainedOffer onShowChainedOffer:
+                case OnShowChainedOffer _:
                     UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer);
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
                     voodooSDKInstance.OfferSystem.GetChainedOffers();
                     break;
-                case OnShowEndlessOffer onShowEndlessOffer:
+                case OnShowEndlessOffer _:
                     UIManager.Instance.LoadPopUpWindow(WindowType.EndlessOffer);
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
                     voodooSDKInstance.OfferSystem.GetEndlessOffers();
                     break;
-                case OnShowMultipleOffer onShowMultipleOffer:
+                case OnShowMultipleOffer _:
                     UIManager.Instance.LoadPopUpWindow(WindowType.MultipleOffer);
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
                     voodooSDKInstance.OfferSystem.GetMultipleOffers();
                     break;
-                case OnLevelComplete onLevelComplete:
-                    voodooSDKInstance.OfferSystem.GetSingleOffer("LEVEL_COMPLETE", this, offer => {
+                case OnLevelComplete _:
+                    voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.LevelComplete, this, offer => {
                         if (offer != null) {
                             Debug.Log($"[SDKManager] Showing level complete offer: {offer.Id}");
                             UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
@@ -62,6 +64,23 @@ namespace ExampleGame.Code.Managers {
                             Debug.Log("[SDKManager] No eligible offer found for LEVEL_COMPLETE");
                         }
                     });
+                    break;
+
+                case OnSessionStart _:
+                    var userSegments = new Dictionary<string, string> {
+                        ["geo"] = GetRegion()
+                    };
+
+                    voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.SessionStart, this, offer => {
+                        if (offer != null) {
+                            Debug.Log($"[SDKManager] Showing session start offer: {offer}");
+                            UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                        }
+                        else {
+                            Debug.Log("[SDKManager] No eligible offer found for SESSION_START");
+                        }
+                    }, userSegments);
+
                     break;
             }
         }
@@ -89,6 +108,10 @@ namespace ExampleGame.Code.Managers {
             throw new NotImplementedException();
         }
 
+        public string GetRegion() {
+            return "USA";
+        }
+
         public void Init() {
             voodooSDKInstance = VoodooSDK.Instance;
             var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
@@ -102,6 +125,7 @@ namespace ExampleGame.Code.Managers {
             eventBus.Register<OnShowEndlessOffer>(this);
             eventBus.Register<OnShowMultipleOffer>(this);
             eventBus.Register<OnLevelComplete>(this);
+            eventBus.Register<OnSessionStart>(this);
         }
 
         public void UnsubscribeFromEvents() {
@@ -110,6 +134,7 @@ namespace ExampleGame.Code.Managers {
             eventBus.Unregister<OnShowEndlessOffer>(this);
             eventBus.Unregister<OnShowMultipleOffer>(this);
             eventBus.Unregister<OnLevelComplete>(this);
+            eventBus.Register<OnSessionStart>(this);
         }
     }
 

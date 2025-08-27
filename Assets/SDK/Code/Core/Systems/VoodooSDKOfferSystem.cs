@@ -22,34 +22,6 @@ namespace SDK.Code.Core.Systems {
             voodooSDKRequestService = requestService;
         }
 
-        // --- Public API ---
-
-        public void GetSingleOfferManual(IGameStateProvider state, Action<Offer> callback) {
-            RequestOffers(OfferType.Single, offers => {
-                var eligible = GetEligibleOffers("MANUAL_SHOW", state);
-                var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
-
-                Log.Info(offer != null
-                    ? $"[OfferSystem] Selected Manual Single Offer: {offer.Id}"
-                    : "[OfferSystem] No manual single offer found.");
-
-                callback?.Invoke(offer);
-            });
-        }
-
-        public void GetSingleOffer(string trigger, IGameStateProvider state, Action<Offer> callback) {
-            RequestOffers(OfferType.Single, offers => {
-                var eligible = GetEligibleOffers(trigger, state);
-                var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
-
-                Log.Info(offer != null
-                    ? $"[OfferSystem] Selected Single Offer for {trigger}: {offer.Id}"
-                    : $"[OfferSystem] No eligible single offer for {trigger}");
-
-                callback?.Invoke(offer);
-            });
-        }
-
         public List<Offer> GetChainedOffers() {
             return null;
         }
@@ -62,9 +34,40 @@ namespace SDK.Code.Core.Systems {
             return null;
         }
 
+        // --- Public API ---
+
+        public void GetSingleOfferManual(IGameStateProvider state, Action<Offer> callback,
+            Dictionary<string, string> userSegments = null) {
+            RequestOffers(OfferType.Single, userSegments, offers => {
+                var eligible = GetEligibleOffers("MANUAL_SHOW", state);
+                var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
+
+                Log.Info(offer != null
+                    ? $"[OfferSystem] Selected Manual Single Offer: {offer.Id}"
+                    : "[OfferSystem] No manual single offer found.");
+
+                callback?.Invoke(offer);
+            });
+        }
+
+        public void GetSingleOffer(string trigger, IGameStateProvider state, Action<Offer> callback,
+            Dictionary<string, string> userSegments = null) {
+            RequestOffers(OfferType.Single, userSegments, offers => {
+                var eligible = GetEligibleOffers(trigger, state);
+                var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
+
+                Log.Info(offer != null
+                    ? $"[OfferSystem] Selected Single Offer for {trigger}: {offer.Id}"
+                    : $"[OfferSystem] No eligible single offer for {trigger}");
+
+                callback?.Invoke(offer);
+            });
+        }
+
         // --- Internal ---
 
-        private void RequestOffers(OfferType type, Action<List<Offer>> callback) {
+        private void RequestOffers(OfferType type, Dictionary<string, string> userSegments,
+            Action<List<Offer>> callback) {
             var resourceKey = type switch {
                 OfferType.Single => "singleOffers",
                 OfferType.Multiple => "multipleOffers",
@@ -73,17 +76,11 @@ namespace SDK.Code.Core.Systems {
                 _ => "singleOffers"
             };
 
-            voodooSDKRequestService.GetOffers(resourceKey, offers => {
+            voodooSDKRequestService.GetOffers(resourceKey, userSegments, offers => {
                 _offers = offers.Where(o => o.Type == type).ToList();
                 BuildIndexes();
                 callback?.Invoke(_offers);
             });
-        }
-
-        private static OfferType ParseOfferType(string t) {
-            return t == "Chained" ? OfferType.Chained :
-                t == "Endless" ? OfferType.Endless :
-                t == "Multiple" ? OfferType.Multiple : OfferType.Single;
         }
 
         private void BuildIndexes() {

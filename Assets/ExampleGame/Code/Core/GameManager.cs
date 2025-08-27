@@ -1,3 +1,4 @@
+using Code.Events;
 using ExampleGame.Code.Enums;
 using ExampleGame.Code.Managers;
 using UnityEngine;
@@ -50,6 +51,8 @@ namespace Code.Core {
             SDKManager.Init();
 
             SubscribeToEvents();
+
+            EventBus.Raise(new OnSessionStart());
         }
 
         private void SubscribeToEvents() {

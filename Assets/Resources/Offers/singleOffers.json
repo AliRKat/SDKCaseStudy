@@ -1,10 +1,48 @@
 {
   "offers": [
     {
+      "id": "starter_pack",
+      "type": "Single",
+      "trigger": "SESSION_START",
+      "price": {
+        "currency": "USD",
+        "amount": 5
+      },
+      "rewards": [
+        {
+          "itemId": "Coins",
+          "amount": 1000
+        }
+      ],
+      "variants": [
+        {
+          "segments": [
+            {
+              "key": "geo",
+              "value": "EU"
+            }
+          ],
+          "price": {
+            "currency": "TRY",
+            "amount": 50
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 1000
+            }
+          ],
+          "conditions": []
+        }
+      ],
+      "conditions": []
+    },
+    {
       "id": "manual_always_available",
       "type": "Single",
       "trigger": "MANUAL_SHOW",
-      "targetSegments": {},
+      "targetSegments": {
+      },
       "price": {
         "currency": "Coins",
         "amount": 0
@@ -22,7 +60,8 @@
       "id": "starter_level_3",
       "type": "Single",
       "trigger": "LEVEL_COMPLETE",
-      "targetSegments": {},
+      "targetSegments": {
+      },
       "price": {
         "currency": "Coins",
         "amount": 50

@@ -8,6 +8,7 @@ namespace SDK.Code.Interfaces {
         int GetCompletedStages();
         bool HasPurchased(string offerId);
         DateTime GetLastShown(string offerId);
+        string GetRegion();
     }
 
 }

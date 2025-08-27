@@ -18,7 +18,8 @@ namespace SDK.Code.Core.Services {
             Log = logHandler;
         }
 
-        public void GetOffers(string resourceKey, Action<List<Offer>> onResponse) {
+        public void GetOffers(string resourceKey, Dictionary<string, string> userSegments,
+            Action<List<Offer>> onResponse) {
             var jsonAsset = Resources.Load<TextAsset>($"{_resourcePath}{resourceKey}");
             if (jsonAsset == null) {
                 Log.Error($"[RequestService] Failed to load JSON at {_resourcePath}{resourceKey}");
@@ -34,7 +35,11 @@ namespace SDK.Code.Core.Services {
                 return;
             }
 
-            var offers = dtoWrapper.offers.Select(OfferParser.MapOffer).ToList();
+            var offers = dtoWrapper.offers
+                .Select(dto => OfferParser.MapOffer(dto, userSegments))
+                .Where(o => o != null)
+                .ToList();
+
             onResponse?.Invoke(offers);
         }
     }
