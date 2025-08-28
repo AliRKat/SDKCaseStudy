@@ -213,6 +213,15 @@ namespace SDK.Code.Core.Systems {
         
         internal override void OnSessionUpdate() {
             Log.Debug("[OfferSystem] Session updated.");
+            GetSingleOffer(SDKEventKeys.SessionUpdate, Configuration.GetGameStateProvider(), offer => {
+                if (offer != null) {
+                    Log.Debug($"[OfferSystem][OnSessionUpdate] Showing level complete offer: {offer}");
+                    UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                }
+                else {
+                    Log.Warning("[OfferSystem][OnSessionUpdate] No eligible offer found for LEVEL_COMPLETE");
+                }
+            });
         }
         
         internal override void OnSessionEnded() {

@@ -19,7 +19,7 @@ namespace ExampleGame.Code.Managers {
         private EventBus eventBus;
         private GameplayManager gameplayManager;
         private VoodooSDK voodooSDKInstance;
-        private readonly int sessionTimeout = 15; 
+        private readonly int sessionTimeout = 5; 
 
         public SDKManager(EventBus eventBus, CurrencyManager currencyManager, GameplayManager gameplayManager) {
             this.eventBus = eventBus;
