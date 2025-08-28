@@ -51,8 +51,8 @@ namespace SDK.Code.Models {
 
     [Serializable]
     public class OfferConditionDTO {
-        public string type; // e.g. "LevelAtLeast"
-        public string value; // e.g. "5", "Gems:50"
+        public string type;
+        public string value;
     }
 
 }

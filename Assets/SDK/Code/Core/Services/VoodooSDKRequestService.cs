@@ -18,6 +18,23 @@ namespace SDK.Code.Core.Services {
             Log = logHandler;
         }
 
+        /// <summary>
+        ///     Retrieves offers for the given resource key.
+        ///     In a production environment, this would normally send a request to the server
+        ///     and process the response.
+        ///     However, since the system is running with mock data, it instead loads a local
+        ///     JSON file from <c>Resources</c> and parses it into offers.
+        /// </summary>
+        /// <param name="resourceKey">
+        ///     The resource key identifying which JSON file to load (e.g., "singleOffers").
+        /// </param>
+        /// <param name="userSegments">
+        ///     Optional user segment data used to personalize the mapped offers.
+        /// </param>
+        /// <param name="onResponse">
+        ///     Callback invoked with the list of parsed offers.
+        ///     An empty list is provided if the JSON file is missing or invalid.
+        /// </param>
         public void GetOffers(string resourceKey, Dictionary<string, string> userSegments,
             Action<List<Offer>> onResponse) {
             var jsonAsset = Resources.Load<TextAsset>($"{_resourcePath}{resourceKey}");

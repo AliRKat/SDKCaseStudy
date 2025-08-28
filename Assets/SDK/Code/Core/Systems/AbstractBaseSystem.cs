@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using SDK.Code.Core.Handlers;
 
 namespace SDK.Code.Core.Systems {
@@ -10,7 +11,13 @@ namespace SDK.Code.Core.Systems {
             Log = logHandler;
         }
 
-        protected VoodooSDKLogHandler Log { get; private set; }
+        protected VoodooSDKLogHandler Log { get; }
+
+        internal bool EnsureSDKInitialized([CallerMemberName] string caller = "") {
+            if (VoodooSDK.Instance.IsSDKInitialized) return true;
+            Log.Warning($"[VoodooSDK][{caller}] SDK is not initialized. Returning.");
+            return false;
+        }
     }
 
 }

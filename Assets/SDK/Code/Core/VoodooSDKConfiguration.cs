@@ -7,6 +7,7 @@ namespace SDK.Code.Core {
     public class VoodooSDKConfiguration {
         public GameObject Parent;
         internal string AppKey;
+        internal bool autoShowOffers = true;
         internal bool canPrintLogs;
         internal string ServerURL;
 
@@ -19,6 +20,11 @@ namespace SDK.Code.Core {
 
         public VoodooSDKConfiguration EnableLogging() {
             canPrintLogs = true;
+            return this;
+        }
+
+        public VoodooSDKConfiguration DisableAutoShowOffers() {
+            autoShowOffers = false;
             return this;
         }
 
@@ -36,6 +42,10 @@ namespace SDK.Code.Core {
 
         public bool IsLoggingEnabled() {
             return canPrintLogs;
+        }
+
+        public bool IsAutoShowOffersEnabled() {
+            return autoShowOffers;
         }
 
         #endregion
