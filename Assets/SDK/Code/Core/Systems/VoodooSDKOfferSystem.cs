@@ -190,6 +190,22 @@ namespace SDK.Code.Core.Systems {
         }
 
         #endregion
+
+        #region Override Methods
+
+        internal override void OnSessionStarted() {
+            Log.Debug("[OfferSystem] Session started.");
+        }
+        
+        internal override void OnSessionUpdate() {
+            Log.Debug("[OfferSystem] Session updated.");
+        }
+        
+        internal override void OnSessionEnded() {
+            Log.Debug("[OfferSystem] Session ended.");
+        }
+
+        #endregion
     }
 
 }

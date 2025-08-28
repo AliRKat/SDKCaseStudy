@@ -10,6 +10,8 @@ namespace SDK.Code.Core {
         internal bool autoShowOffers = true;
         internal bool canPrintLogs;
         internal string ServerURL;
+        internal int sessionTimeout;
+        internal bool isAutomaticSessionDisabled;
 
         public VoodooSDKConfiguration(string appKey, string serverUrl) {
             AppKey = appKey;
@@ -25,6 +27,16 @@ namespace SDK.Code.Core {
 
         public VoodooSDKConfiguration DisableAutoShowOffers() {
             autoShowOffers = false;
+            return this;
+        }
+
+        public VoodooSDKConfiguration DisableAutomaticSessions() {
+            isAutomaticSessionDisabled = true;
+            return this;
+        }
+
+        public VoodooSDKConfiguration SetSessionTimeout(int timeout) {
+            sessionTimeout = timeout;
             return this;
         }
 
@@ -47,6 +59,15 @@ namespace SDK.Code.Core {
         public bool IsAutoShowOffersEnabled() {
             return autoShowOffers;
         }
+
+        public bool IsAutomaticSessionTrackingDisabled() {
+            return isAutomaticSessionDisabled;
+        }
+
+        public int GetUpdateSessionTimerDelay() {
+            return sessionTimeout;
+        }
+        
 
         #endregion
     }

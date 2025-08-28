@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using SDK.Code.Core.Handlers;
 using SDK.Code.Core.Services;
 using SDK.Code.Core.Systems;
@@ -11,17 +13,16 @@ namespace SDK.Code.Core {
         private VoodooSDKConfiguration Configuration;
 
         /// <summary>
-        ///     Exposes functionality to record events
-        /// </summary>
-        public VoodooSDKEventSystem EventSystem;
-
-        /// <summary>
         ///     Exposes functionality to get Offers
         /// </summary>
         public IOfferModule OfferSystem;
+        
+        public VoodooSDKSessionSystem SessionSystem;
 
         private VoodooSDKRequestService RequestService;
         private VoodooSDKLogHandler SDKLogHandler;
+        private List<AbstractBaseSystem> _listeners = new List<AbstractBaseSystem>();
+
 
         public static VoodooSDK Instance {
             get {
@@ -32,7 +33,7 @@ namespace SDK.Code.Core {
 
                 return _instance;
             }
-            internal set => _instance = value;
+            private set => _instance = value;
         }
 
         /// <summary>
@@ -40,6 +41,15 @@ namespace SDK.Code.Core {
         /// </summary>
         /// <returns>bool</returns>
         public bool IsSDKInitialized { get; private set; }
+        
+        /// <summary>
+        /// Initialize SDK at the start of your app
+        /// </summary>
+        private void Awake()
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
 
         /// <summary>
         ///     Initializes the Voodoo SDK with the given configuration.
@@ -62,7 +72,7 @@ namespace SDK.Code.Core {
             SDKLogHandler = new VoodooSDKLogHandler(Configuration);
 
             if (Configuration.Parent != null) transform.parent = Configuration.Parent.transform;
-
+            
             SDKLogHandler.Info(
                 $"[Init] Initialized VoodooSDK with App Key: {Configuration.GetAppKey()} and Server URL: {Configuration.GetServerURL()}");
             InitSubSystems();
@@ -71,7 +81,37 @@ namespace SDK.Code.Core {
         private void InitSubSystems() {
             RequestService = new VoodooSDKRequestService(SDKLogHandler);
             OfferSystem = new VoodooSDKOfferSystem(Configuration, SDKLogHandler, RequestService);
-            EventSystem = new VoodooSDKEventSystem(Configuration, SDKLogHandler);
+            SessionSystem = new VoodooSDKSessionSystem(Configuration, SDKLogHandler);
+            
+            _listeners.Clear();
+            _listeners.Add((VoodooSDKOfferSystem)OfferSystem);
+            _listeners.Add(SessionSystem);
+            
+            SessionSystem.Listeners = _listeners;
+            
+            SessionSystem.Init();
+            OnInitializationCompleted();
+        }
+
+        private void OnInitializationCompleted() {
+            SDKLogHandler.Debug($"[VoodooSDK][OnInitializationCompleted] VoodooSDK Initialized");
+            IsSDKInitialized = true;
+        }
+
+        private void OnApplicationPause(bool pauseStatus) {
+            if (pauseStatus) {
+                if (!Configuration.IsAutomaticSessionTrackingDisabled()) {
+                    _ = SessionSystem?.EndSessionAsync();
+                }
+            } else {
+                if (!Configuration.IsAutomaticSessionTrackingDisabled()) {
+                    _ = SessionSystem?.BeginSessionAsync();
+                }
+            }
+        }
+
+        private void OnApplicationQuit() {
+            SessionSystem?._sessionTimer?.Dispose();
         }
     }
 

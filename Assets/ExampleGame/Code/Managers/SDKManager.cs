@@ -66,22 +66,22 @@ namespace ExampleGame.Code.Managers {
                     });
                     break;
 
-                case OnSessionStart _:
-                    var userSegments = new Dictionary<string, string> {
-                        ["geo"] = GetRegion()
-                    };
-
-                    voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.SessionStart, this, offer => {
-                        if (offer != null) {
-                            Debug.Log($"[SDKManager] Showing session start offer: {offer}");
-                            UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
-                        }
-                        else {
-                            Debug.Log("[SDKManager] No eligible offer found for SESSION_START");
-                        }
-                    }, userSegments);
-
-                    break;
+                // case OnSessionStart _:
+                //     var userSegments = new Dictionary<string, string> {
+                //         ["geo"] = GetRegion()
+                //     };
+                //
+                //     voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.SessionStart, this, offer => {
+                //         if (offer != null) {
+                //             Debug.Log($"[SDKManager] Showing session start offer: {offer}");
+                //             UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                //         }
+                //         else {
+                //             Debug.Log("[SDKManager] No eligible offer found for SESSION_START");
+                //         }
+                //     }, userSegments);
+                //
+                //     break;
             }
         }
 
@@ -114,18 +114,20 @@ namespace ExampleGame.Code.Managers {
 
         public void Init() {
             voodooSDKInstance = VoodooSDK.Instance;
+            SubscribeToEvents();
+
             var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
-                .EnableLogging();
+                .EnableLogging()
+                .SetSessionTimeout(10);
             voodooSDKInstance.Init(sdkConfiguration);
         }
 
-        public void SubscribeToEvents() {
+        private void SubscribeToEvents() {
             eventBus.Register<OnShowSingleOffer>(this);
             eventBus.Register<OnShowChainedOffer>(this);
             eventBus.Register<OnShowEndlessOffer>(this);
             eventBus.Register<OnShowMultipleOffer>(this);
             eventBus.Register<OnLevelComplete>(this);
-            eventBus.Register<OnSessionStart>(this);
         }
 
         public void UnsubscribeFromEvents() {
@@ -134,7 +136,6 @@ namespace ExampleGame.Code.Managers {
             eventBus.Unregister<OnShowEndlessOffer>(this);
             eventBus.Unregister<OnShowMultipleOffer>(this);
             eventBus.Unregister<OnLevelComplete>(this);
-            eventBus.Register<OnSessionStart>(this);
         }
     }
 
