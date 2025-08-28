@@ -41,8 +41,9 @@ namespace SDK.Code.Utils {
                           ?? dto.rewards?.Select(r => new OfferReward(r.itemId, r.amount)).ToList()
                           ?? new List<OfferReward>();
 
-            var conditions = selectedVariant?.conditions?.Select(OfferConditionFactory.Create).ToList()
-                             ?? dto.conditions?.Select(OfferConditionFactory.Create).ToList()
+            var conditions = (selectedVariant?.conditions != null && selectedVariant.conditions.Count > 0
+                                 ? selectedVariant.conditions.Select(OfferConditionFactory.Create).ToList()
+                                 : dto.conditions?.Select(OfferConditionFactory.Create).ToList())
                              ?? new List<IOfferCondition>();
 
             var offer = new Offer(

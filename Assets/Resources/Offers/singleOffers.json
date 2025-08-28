@@ -4,81 +4,205 @@
       "id": "starter_pack",
       "type": "Single",
       "trigger": "SESSION_START",
-      "price": {
-        "currency": "USD",
-        "amount": 5
-      },
-      "rewards": [
-        {
-          "itemId": "Coins",
-          "amount": 1000
-        }
-      ],
+      "price": { "currency": "USD", "amount": 5 },
+      "rewards": [{ "itemId": "Coins", "amount": 1000 }],
       "variants": [
-        {
-          "segments": [
-            {
-              "key": "geo",
-              "value": "EU"
-            }
-          ],
-          "price": {
-            "currency": "TRY",
-            "amount": 50
-          },
-          "rewards": [
-            {
-              "itemId": "Coins",
-              "amount": 1000
-            }
-          ],
-          "conditions": []
-        }
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 5 }, "rewards": [{ "itemId": "Coins", "amount": 1200 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 5 }, "rewards": [{ "itemId": "Coins", "amount": 1200 }] }
       ],
-      "conditions": []
+      "conditions": [{ "type": "LevelAtLeast", "value": "2" }]
     },
     {
-      "id": "manual_always_available",
+      "id": "welcome_boost",
       "type": "Single",
-      "trigger": "MANUAL_SHOW",
-      "targetSegments": {
-      },
-      "price": {
-        "currency": "Coins",
-        "amount": 0
-      },
-      "rewards": [
-        {
-          "itemId": "Gems",
-          "amount": 5
-        }
+      "trigger": "SESSION_START",
+      "price": { "currency": "USD", "amount": 3 },
+      "rewards": [{ "itemId": "Gems", "amount": 15 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 3 }, "rewards": [{ "itemId": "Gems", "amount": 20 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 3 }, "rewards": [{ "itemId": "Gems", "amount": 20 }] }
       ],
-      "nextOfferId": null,
-      "conditions": []
+      "conditions": [{ "type": "StageCompleted", "value": "1" }]
     },
     {
-      "id": "starter_level_3",
+      "id": "returning_player_offer",
+      "type": "Single",
+      "trigger": "SESSION_UPDATE",
+      "price": { "currency": "USD", "amount": 4 },
+      "rewards": [{ "itemId": "Chest", "amount": 1 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 4 }, "rewards": [{ "itemId": "Chest", "amount": 1 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 4 }, "rewards": [{ "itemId": "Chest", "amount": 1 }] }
+      ],
+      "conditions": [{ "type": "HasCurrency", "value": "Coins:200" }]
+    },
+    {
+      "id": "level_3_completion_offer",
       "type": "Single",
       "trigger": "LEVEL_COMPLETE",
-      "targetSegments": {
-      },
-      "price": {
-        "currency": "Coins",
-        "amount": 50
-      },
-      "rewards": [
-        {
-          "itemId": "Gems",
-          "amount": 5
-        }
+      "price": { "currency": "Coins", "amount": 500 },
+      "rewards": [{ "itemId": "Chest", "amount": 1 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "Coins", "amount": 450 }, "rewards": [{ "itemId": "Chest", "amount": 1 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "Coins", "amount": 500 }, "rewards": [{ "itemId": "Chest", "amount": 1 }] }
       ],
-      "nextOfferId": null,
-      "conditions": [
-        {
-          "type": "LevelAtLeast",
-          "value": "3"
-        }
-      ]
+      "conditions": [{ "type": "LevelAtLeast", "value": "3" }]
+    },
+    {
+      "id": "level_5_gem_bundle",
+      "type": "Single",
+      "trigger": "LEVEL_COMPLETE",
+      "price": { "currency": "Coins", "amount": 700 },
+      "rewards": [{ "itemId": "Gems", "amount": 25 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "Coins", "amount": 650 }, "rewards": [{ "itemId": "Gems", "amount": 30 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "Coins", "amount": 700 }, "rewards": [{ "itemId": "Gems", "amount": 30 }] }
+      ],
+      "conditions": [{ "type": "LevelAtLeast", "value": "5" }]
+    },
+    {
+      "id": "stage_2_completion_offer",
+      "type": "Single",
+      "trigger": "STAGE_COMPLETE",
+      "price": { "currency": "USD", "amount": 2 },
+      "rewards": [{ "itemId": "Coins", "amount": 800 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 2 }, "rewards": [{ "itemId": "Coins", "amount": 900 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 2 }, "rewards": [{ "itemId": "Coins", "amount": 900 }] }
+      ],
+      "conditions": [{ "type": "StageCompleted", "value": "2" }]
+    },
+    {
+      "id": "stage_5_epic_bundle",
+      "type": "Single",
+      "trigger": "STAGE_COMPLETE",
+      "price": { "currency": "USD", "amount": 6 },
+      "rewards": [{ "itemId": "EpicKey", "amount": 1 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 6 }, "rewards": [{ "itemId": "EpicKey", "amount": 1 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 6 }, "rewards": [{ "itemId": "EpicKey", "amount": 1 }] }
+      ],
+      "conditions": [{ "type": "StageCompleted", "value": "5" }]
+    },
+    {
+      "id": "manual_gem_offer",
+      "type": "Single",
+      "trigger": "MANUAL_SHOW",
+      "price": { "currency": "Coins", "amount": 300 },
+      "rewards": [{ "itemId": "Gems", "amount": 12 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "Coins", "amount": 280 }, "rewards": [{ "itemId": "Gems", "amount": 15 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "Coins", "amount": 300 }, "rewards": [{ "itemId": "Gems", "amount": 15 }] }
+      ],
+      "conditions": [{ "type": "StageCompleted", "value": "3" }]
+    },
+    {
+      "id": "manual_chest_offer",
+      "type": "Single",
+      "trigger": "MANUAL_SHOW",
+      "price": { "currency": "Coins", "amount": 500 },
+      "rewards": [{ "itemId": "Chest", "amount": 1 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "Coins", "amount": 480 }, "rewards": [{ "itemId": "Chest", "amount": 1 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "Coins", "amount": 500 }, "rewards": [{ "itemId": "Chest", "amount": 1 }] }
+      ],
+      "conditions": [{ "type": "LevelAtLeast", "value": "4" }]
+    },
+    {
+      "id": "manual_elite_bundle",
+      "type": "Single",
+      "trigger": "MANUAL_SHOW",
+      "price": { "currency": "USD", "amount": 7 },
+      "rewards": [{ "itemId": "EpicKey", "amount": 2 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 7 }, "rewards": [{ "itemId": "EpicKey", "amount": 2 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 7 }, "rewards": [{ "itemId": "EpicKey", "amount": 2 }] }
+      ],
+      "conditions": [{ "type": "HasCurrency", "value": "Coins:300" }]
+    },
+    {
+      "id": "manual_returning_pack",
+      "type": "Single",
+      "trigger": "MANUAL_SHOW",
+      "price": { "currency": "Coins", "amount": 200 },
+      "rewards": [{ "itemId": "Gems", "amount": 8 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "Coins", "amount": 180 }, "rewards": [{ "itemId": "Gems", "amount": 10 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "Coins", "amount": 200 }, "rewards": [{ "itemId": "Gems", "amount": 10 }] }
+      ],
+      "conditions": [{ "type": "StageCompleted", "value": "2" }]
+    },
+    {
+      "id": "session_update_gold",
+      "type": "Single",
+      "trigger": "SESSION_UPDATE",
+      "price": { "currency": "USD", "amount": 5 },
+      "rewards": [{ "itemId": "Coins", "amount": 2000 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 5 }, "rewards": [{ "itemId": "Coins", "amount": 2200 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 5 }, "rewards": [{ "itemId": "Coins", "amount": 2200 }] }
+      ],
+      "conditions": [{ "type": "HasCurrency", "value": "Coins:150" }]
+    },
+    {
+      "id": "session_update_mini_gems",
+      "type": "Single",
+      "trigger": "SESSION_UPDATE",
+      "price": { "currency": "USD", "amount": 2 },
+      "rewards": [{ "itemId": "Gems", "amount": 8 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 2 }, "rewards": [{ "itemId": "Gems", "amount": 10 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 2 }, "rewards": [{ "itemId": "Gems", "amount": 10 }] }
+      ],
+      "conditions": [{ "type": "LevelAtLeast", "value": "2" }]
+    },
+    {
+      "id": "level_7_completion_bonus",
+      "type": "Single",
+      "trigger": "LEVEL_COMPLETE",
+      "price": { "currency": "Coins", "amount": 800 },
+      "rewards": [{ "itemId": "Chest", "amount": 1 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "Coins", "amount": 750 }, "rewards": [{ "itemId": "Chest", "amount": 1 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "Coins", "amount": 800 }, "rewards": [{ "itemId": "Chest", "amount": 1 }] }
+      ],
+      "conditions": [{ "type": "LevelAtLeast", "value": "7" }]
+    },
+    {
+      "id": "level_10_epic_offer",
+      "type": "Single",
+      "trigger": "LEVEL_COMPLETE",
+      "price": { "currency": "USD", "amount": 10 },
+      "rewards": [{ "itemId": "EpicKey", "amount": 1 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 10 }, "rewards": [{ "itemId": "EpicKey", "amount": 1 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 10 }, "rewards": [{ "itemId": "EpicKey", "amount": 1 }] }
+      ],
+      "conditions": [{ "type": "LevelAtLeast", "value": "10" }]
+    },
+    {
+      "id": "stage_8_reward_pack",
+      "type": "Single",
+      "trigger": "STAGE_COMPLETE",
+      "price": { "currency": "USD", "amount": 4 },
+      "rewards": [{ "itemId": "Gems", "amount": 20 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 4 }, "rewards": [{ "itemId": "Gems", "amount": 25 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 4 }, "rewards": [{ "itemId": "Gems", "amount": 25 }] }
+      ],
+      "conditions": [{ "type": "StageCompleted", "value": "8" }]
+    },
+    {
+      "id": "stage_10_legendary_bundle",
+      "type": "Single",
+      "trigger": "STAGE_COMPLETE",
+      "price": { "currency": "USD", "amount": 12 },
+      "rewards": [{ "itemId": "LegendaryKey", "amount": 1 }],
+      "variants": [
+        { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "EUR", "amount": 12 }, "rewards": [{ "itemId": "LegendaryKey", "amount": 1 }] },
+        { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "USD", "amount": 12 }, "rewards": [{ "itemId": "LegendaryKey", "amount": 1 }] }
+      ],
+      "conditions": [{ "type": "StageCompleted", "value": "10" }]
     }
   ]
 }

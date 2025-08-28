@@ -10,7 +10,9 @@ namespace ExampleGame.Code.Enums {
         ShowEndlessOffer = 7,
         ShowMultipleOffer = 8,
         CloseWindow = 9,
-        AddCurrency = 10
+        AddCurrency = 10,
+        SwapRegion = 11,
+        SwapPlayerType = 12,
     }
 
 }

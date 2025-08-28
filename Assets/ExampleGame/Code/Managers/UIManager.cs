@@ -18,6 +18,8 @@ namespace ExampleGame.Code.Managers {
         [SerializeField] private TMP_Text gemsText;
         [SerializeField] private TMP_Text tokensText;
         [SerializeField] private TMP_Text stagesText;
+        [SerializeField] private TMP_Text regionText;
+        [SerializeField] private TMP_Text playerTypeText;
 
         private void Awake() {
             Instance = this;
@@ -90,6 +92,16 @@ namespace ExampleGame.Code.Managers {
                 case GameAction.StageComplete:
                     GameManager.Instance.GameplayManager.CompleteStage();
                     break;
+                
+                case GameAction.SwapRegion:
+                    GameManager.Instance.GameplayManager.SwapRegion();
+                    UpdateHUD();
+                    break;
+                
+                case GameAction.SwapPlayerType:
+                    GameManager.Instance.GameplayManager.SwapPlayerType();
+                    UpdateHUD();
+                    break;
 
                 default:
                     Debug.LogWarning($"[UIManager][HandleGameAction] Unhandled action: {action}");
@@ -123,6 +135,8 @@ namespace ExampleGame.Code.Managers {
             tokensText.text = $"Tokens: {GameManager.Instance.CurrencyManager.Get(CurrencyType.Tokens)}";
             levelText.text = $"Level: {GameManager.Instance.GameplayManager.GetPlayerLevel()}";
             stagesText.text = $"Stages: {GameManager.Instance.GameplayManager.GetCompletedStages()}";
+            playerTypeText.text = $"Player Type: {GameManager.Instance.GameplayManager.GetPlayerType()}";
+            regionText.text = $"Region: {GameManager.Instance.GameplayManager.GetRegion()}";
         }
     }
 

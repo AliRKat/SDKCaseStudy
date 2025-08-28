@@ -14,11 +14,11 @@ namespace ExampleGame.Code.Controllers {
         [SerializeField] private GameActionButton multipleOfferButton;
 
         [Header("Gameplay Event Buttons")]
-        [SerializeField]
-        private GameActionButton levelUpButton;
-
+        [SerializeField] private GameActionButton levelUpButton;
         [SerializeField] private GameActionButton completeStageButton;
         [SerializeField] private GameActionButton addCurrencyButton;
+        [SerializeField] private GameActionButton swapPlayerTypeButton;
+        [SerializeField] private GameActionButton swapRegionButton;
 
         private void Start() {
             singleOfferButton.RegisterClick(GameAction.ShowSingleOffer);
@@ -29,6 +29,8 @@ namespace ExampleGame.Code.Controllers {
             levelUpButton.RegisterClick(GameAction.LevelUp);
             completeStageButton.RegisterClick(GameAction.StageComplete);
             addCurrencyButton.RegisterClick(GameAction.AddCurrency);
+            swapPlayerTypeButton.RegisterClick(GameAction.SwapPlayerType);
+            swapRegionButton.RegisterClick(GameAction.SwapRegion);
         }
     }
 

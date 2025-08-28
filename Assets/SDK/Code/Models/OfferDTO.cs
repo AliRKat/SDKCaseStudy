@@ -54,5 +54,5 @@ namespace SDK.Code.Models {
         public string type;
         public string value;
     }
-
+    
 }

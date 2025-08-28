@@ -82,6 +82,8 @@ namespace SDK.Code.Core.Systems {
                 return;
             }
 
+            userSegments ??= state.GetUserSegmentation();
+
             RequestOffers(OfferType.Single, userSegments, offers => {
                 var eligible = GetEligibleOffers(trigger, state);
                 var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
@@ -197,7 +199,16 @@ namespace SDK.Code.Core.Systems {
         #region Override Methods
 
         internal override void OnSessionStarted() {
-            Log.Debug("[OfferSystem] Session started.");
+            Log.Debug("[OfferSystem][OnSessionStarted] Session started.");
+            GetSingleOffer(SDKEventKeys.SessionStart, Configuration.GetGameStateProvider(), offer => {
+                if (offer != null) {
+                    Log.Debug($"[OfferSystem][OnSessionStarted] Showing level complete offer: {offer}");
+                    UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                }
+                else {
+                    Log.Warning("[OfferSystem][OnSessionStarted] No eligible offer found for LEVEL_COMPLETE");
+                }
+            });
         }
         
         internal override void OnSessionUpdate() {

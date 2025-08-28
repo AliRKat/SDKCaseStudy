@@ -10,6 +10,8 @@ namespace SDK.Code.Utils {
             switch (dto.type) {
                 case "LevelAtLeast":
                     return new LevelAtLeastCondition(dto.value);
+                case "StageCompleted":
+                    return new StageCompletedCondition(dto.value);
                 case "HasCurrency":
                     var parts = dto.value.Split(':');
                     return new HasCurrencyCondition(parts[0], int.Parse(parts[1]));
@@ -28,13 +30,28 @@ namespace SDK.Code.Utils {
 
         public LevelAtLeastCondition(string value) {
             if (!int.TryParse(value, out _requiredLevel))
-                _requiredLevel = int.MaxValue; // fallback: invalid config means never eligible
+                _requiredLevel = int.MaxValue;
         }
 
         public bool Evaluate(IGameStateProvider state) {
             var current = state.GetPlayerLevel();
 
             return current >= _requiredLevel;
+        }
+    }
+    
+    public class StageCompletedCondition : IOfferCondition {
+        private readonly int _requiredStage;
+
+        public StageCompletedCondition(string value) {
+            if (!int.TryParse(value, out _requiredStage))
+                _requiredStage = int.MaxValue;
+        }
+
+        public bool Evaluate(IGameStateProvider state) {
+            var current = state.GetCompletedStages();
+
+            return current >= _requiredStage;
         }
     }
 

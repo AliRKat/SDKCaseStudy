@@ -86,13 +86,15 @@ namespace SDK.Code.Core {
             
             SessionSystem.Listeners = _listeners;
             
-            SessionSystem.Init();
             OnInitializationCompleted();
         }
 
         private void OnInitializationCompleted() {
             SDKLogHandler.Debug($"[VoodooSDK][OnInitializationCompleted] VoodooSDK Initialized");
             IsSDKInitialized = true;
+            
+            // start the session after initializing the sdk
+            SessionSystem.Init();
         }
 
         private void OnApplicationPause(bool pauseStatus) {
