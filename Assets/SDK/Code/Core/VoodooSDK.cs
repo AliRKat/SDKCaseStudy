@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using SDK.Code.Core.Handlers;
 using SDK.Code.Core.Services;
@@ -10,19 +9,17 @@ namespace SDK.Code.Core {
 
     public class VoodooSDK : MonoBehaviour {
         private static VoodooSDK _instance;
-        private VoodooSDKConfiguration Configuration;
 
         /// <summary>
         ///     Exposes functionality to get Offers
         /// </summary>
         public IOfferModule OfferSystem;
         
-        public VoodooSDKSessionSystem SessionSystem;
-
+        private VoodooSDKConfiguration Configuration;
+        private VoodooSDKSessionSystem SessionSystem;
         private VoodooSDKRequestService RequestService;
         private VoodooSDKLogHandler SDKLogHandler;
         private List<AbstractBaseSystem> _listeners = new List<AbstractBaseSystem>();
-
 
         public static VoodooSDK Instance {
             get {

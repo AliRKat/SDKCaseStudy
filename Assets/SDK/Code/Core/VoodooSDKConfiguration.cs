@@ -1,4 +1,5 @@
 using System;
+using SDK.Code.Interfaces;
 using UnityEngine;
 
 namespace SDK.Code.Core
@@ -22,6 +23,7 @@ namespace SDK.Code.Core
         internal string ServerURL;
         internal int sessionTimeout;
         internal bool isAutomaticSessionDisabled;
+        internal IGameStateProvider gameStateProvider;
 
         /// <summary>
         /// Creates a new configuration instance with the specified app key and server URL.  
@@ -71,6 +73,16 @@ namespace SDK.Code.Core
             sessionTimeout = timeout;
             return this;
         }
+        
+        /// <summary>
+        /// Sets an optional GameStateProvider that the SDK can query for player state.  
+        /// If not set, SDK will only use manually provided state dictionaries.
+        /// </summary>
+        /// <param name="provider">Implementation of IGameStateProvider from game side.</param>
+        public VoodooSDKConfiguration SetGameStateProvider(IGameStateProvider provider) {
+            gameStateProvider = provider;
+            return this;
+        }
 
         #endregion
 
@@ -118,6 +130,14 @@ namespace SDK.Code.Core
         /// </summary>
         public int GetUpdateSessionTimerDelay() {
             return sessionTimeout;
+        }
+        
+        /// <summary>
+        /// Gets the configured GameStateProvider, if any.  
+        /// Returns null if no provider was set.
+        /// </summary>
+        public IGameStateProvider GetGameStateProvider() {
+            return gameStateProvider;
         }
 
         #endregion

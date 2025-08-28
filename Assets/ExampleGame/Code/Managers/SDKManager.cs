@@ -19,6 +19,7 @@ namespace ExampleGame.Code.Managers {
         private EventBus eventBus;
         private GameplayManager gameplayManager;
         private VoodooSDK voodooSDKInstance;
+        private readonly int sessionTimeout = 15; 
 
         public SDKManager(EventBus eventBus, CurrencyManager currencyManager, GameplayManager gameplayManager) {
             this.eventBus = eventBus;
@@ -26,6 +27,17 @@ namespace ExampleGame.Code.Managers {
             this.gameplayManager = gameplayManager;
         }
 
+        public void Init() {
+            voodooSDKInstance = VoodooSDK.Instance;
+            SubscribeToEvents();
+
+            var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
+                .EnableLogging()
+                .SetSessionTimeout(sessionTimeout)
+                .SetGameStateProvider(this);
+            voodooSDKInstance.Init(sdkConfiguration);
+        }
+        
         public void OnEvent(IEvent @event) {
             switch (@event) {
                 case OnShowSingleOffer _:
@@ -63,25 +75,8 @@ namespace ExampleGame.Code.Managers {
                         else {
                             Debug.Log("[SDKManager] No eligible offer found for LEVEL_COMPLETE");
                         }
-                    });
+                    }, GetUserSegmentation());
                     break;
-
-                // case OnSessionStart _:
-                //     var userSegments = new Dictionary<string, string> {
-                //         ["geo"] = GetRegion()
-                //     };
-                //
-                //     voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.SessionStart, this, offer => {
-                //         if (offer != null) {
-                //             Debug.Log($"[SDKManager] Showing session start offer: {offer}");
-                //             UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
-                //         }
-                //         else {
-                //             Debug.Log("[SDKManager] No eligible offer found for SESSION_START");
-                //         }
-                //     }, userSegments);
-                //
-                //     break;
             }
         }
 
@@ -109,17 +104,19 @@ namespace ExampleGame.Code.Managers {
         }
 
         public string GetRegion() {
-            return "USA";
+            return gameplayManager.GetRegion();
         }
-
-        public void Init() {
-            voodooSDKInstance = VoodooSDK.Instance;
-            SubscribeToEvents();
-
-            var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
-                .EnableLogging()
-                .SetSessionTimeout(10);
-            voodooSDKInstance.Init(sdkConfiguration);
+        
+        public string GetPlayerType() {
+            return gameplayManager.GetPlayerType();
+        }
+        
+        public Dictionary<string, string> GetUserSegmentation() {
+            var userSegments = new Dictionary<string, string> {
+                ["geo"] = GetRegion(),
+                ["playerType"] = GetPlayerType()
+            };
+            return userSegments;
         }
 
         private void SubscribeToEvents() {

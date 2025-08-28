@@ -8,6 +8,8 @@ namespace ExampleGame.Code.Managers {
     public class GameplayManager : IBaseEventReceiver {
         private int _completedStages;
         private int _playerLevel;
+        private string _currentRegion = "EU";
+        private string _currentPlayerType = "FREE";
 
         public void OnEvent(IEvent @event) {
         }
@@ -15,6 +17,8 @@ namespace ExampleGame.Code.Managers {
         public void Init() {
             _playerLevel = 1;
             _completedStages = 0;
+            _currentRegion = "EU";
+            _currentPlayerType = "FREE";
             Debug.Log("[GameplayManager] Initialized. Level=1, Stages=0");
         }
 
@@ -37,6 +41,33 @@ namespace ExampleGame.Code.Managers {
             GameManager.Instance.EventBus.Raise(new OnStageComplete());
             Debug.Log($"[GameplayManager][CompleteStage] Stage completed! Total completed = {_completedStages}");
         }
+        
+        /// <summary>
+        /// Toggles the current region between "EU" and "US".
+        /// </summary>
+        public void SwapRegion() {
+            _currentRegion = _currentRegion == "EU" ? "US" : "EU";
+            Debug.Log($"[GameplayManager][SwapRegion] Region swapped to: {_currentRegion}");
+        }
+
+        /// <summary>
+        /// Gets the current region (e.g., "EU" or "US").
+        /// </summary>
+        public string GetRegion() => _currentRegion;
+
+        /// <summary>
+        /// Toggles the player type between "FREE" and "PREMIUM".
+        /// </summary>
+        public void SwapPlayerType()
+        {
+            _currentPlayerType = _currentPlayerType == "FREE" ? "PREMIUM" : "FREE";
+            Debug.Log($"[GameplayManager][SwapPlayerType] Player type swapped to: {_currentPlayerType}");
+        }
+
+        /// <summary>
+        /// Gets the current player type (e.g., "FREE" or "PREMIUM").
+        /// </summary>
+        public string GetPlayerType() => _currentPlayerType;
     }
 
 }
