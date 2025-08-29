@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Code.Core;
 using Code.Events;
 using Core;
@@ -83,7 +84,20 @@ namespace ExampleGame.Code.Managers {
                     break;
 
                 case GameAction.CloseWindow:
-                    if (data is BaseWindowController window) window.Close();
+                    switch (data) {
+                        case SingleOfferWindowController single:
+                            single.Close();
+                            break;
+
+                        case MultipleOfferWindowController multi:
+                            multi.Close();
+                            break;
+
+                        default:
+                            Debug.LogWarning("[UIManager] CloseWindow called with unsupported window type");
+                            break;
+                    }
+
                     break;
 
                 case GameAction.AddCurrency:
@@ -110,16 +124,39 @@ namespace ExampleGame.Code.Managers {
                     break;
 
                 case GameAction.BuyOffer:
-                    if (data is BaseWindowController offerWindow) {
-                        var initData = offerWindow.GetInitData<OfferWindowInitData>();
-                        if (initData != null)
-                            GameManager.Instance.SDKManager.HandleBuyOffer(initData.offerId, offer => {
+                    switch (data) {
+                        case SingleOfferWindowController singleWindow: {
+                            var initData = singleWindow.GetInitData<SingleOfferWindowInitData>();
+                            if (initData != null)
+                                GameManager.Instance.SDKManager.HandleBuyOffer(initData.offerId, offer => {
+                                    if (offer != null)
+                                        Debug.Log($"Player bought {offer.Id}, Rewards: {offer.GetRewardsString()}");
+                                    else
+                                        Debug.LogWarning("Purchase failed");
+                                    singleWindow.Close();
+                                });
+                            break;
+                        }
+
+                        case SingleOfferWindowInitData subOfferData: {
+                            GameManager.Instance.SDKManager.HandleBuyOffer(subOfferData.offerId, offer => {
                                 if (offer != null)
                                     Debug.Log($"Player bought {offer.Id}, Rewards: {offer.GetRewardsString()}");
                                 else
                                     Debug.LogWarning("Purchase failed");
-                                offerWindow.Close();
+
+                                if (windowParent.childCount > 0) {
+                                    var topWindow = windowParent.GetChild(windowParent.childCount - 1)
+                                        .GetComponent<MultipleOfferWindowController>();
+                                    topWindow?.Close();
+                                }
                             });
+                            break;
+                        }
+
+                        default:
+                            Debug.LogWarning("[UIManager] BuyOffer action received with unsupported data type");
+                            break;
                     }
 
                     break;
@@ -134,10 +171,35 @@ namespace ExampleGame.Code.Managers {
             switch (windowType) {
                 case WindowType.SingleOffer:
                     if (data is Offer offer) {
-                        var windowInitData = new OfferWindowInitData {
+                        var windowInitData = new SingleOfferWindowInitData {
                             offerId = offer.Id,
                             price = offer.Price.ToString(),
                             reward = offer.GetRewardsString()
+                        };
+
+                        if (_activeWindow != null) {
+                            _windowQueue.Enqueue((windowType, windowInitData));
+                            Debug.Log($"[UIManager] Queued popup window: {windowType}");
+                            return;
+                        }
+
+                        ShowWindow(windowType, windowInitData);
+                    }
+
+                    break;
+
+                case WindowType.MultipleOffer:
+                    if (data is MultipleOffer multipleOffer) {
+                        var list = multipleOffer.Offers
+                            .Select(o => new SingleOfferWindowInitData {
+                                offerId = o.Id,
+                                price = o.Price.ToString(),
+                                reward = o.GetRewardsString()
+                            })
+                            .ToList();
+
+                        var windowInitData = new MultipleOfferWindowInitData {
+                            offerList = list
                         };
 
                         if (_activeWindow != null) {
@@ -166,10 +228,28 @@ namespace ExampleGame.Code.Managers {
             _activeWindow = Instantiate(prefab, windowParent);
             _activeWindow.name = windowName;
 
-            var controller = _activeWindow.GetComponent<BaseWindowController>();
-            if (controller != null) {
-                controller.Init(data);
-                controller.OnClosed += HandleWindowClosed;
+            switch (windowType) {
+                case WindowType.SingleOffer:
+                    var singleCtrl = _activeWindow.GetComponent<SingleOfferWindowController>();
+                    if (singleCtrl != null) {
+                        singleCtrl.Init(data);
+                        singleCtrl.OnClosed += HandleWindowClosed;
+                    }
+
+                    break;
+
+                case WindowType.MultipleOffer:
+                    var multiCtrl = _activeWindow.GetComponent<MultipleOfferWindowController>();
+                    if (multiCtrl != null) {
+                        multiCtrl.Init(data);
+                        multiCtrl.OnClosed += HandleWindowClosed;
+                    }
+
+                    break;
+
+                default:
+                    Debug.LogWarning($"[UIManager] No controller found for {windowType}");
+                    break;
             }
 
             Debug.Log($"[UIManager][LoadPopUpWindow] Loaded popup window: {windowName}");
@@ -177,8 +257,11 @@ namespace ExampleGame.Code.Managers {
 
         private void HandleWindowClosed() {
             if (_activeWindow != null) {
-                var controller = _activeWindow.GetComponent<BaseWindowController>();
-                if (controller != null) controller.OnClosed -= HandleWindowClosed;
+                var singleCtrl = _activeWindow.GetComponent<SingleOfferWindowController>();
+                if (singleCtrl != null) singleCtrl.OnClosed -= HandleWindowClosed;
+
+                var multiCtrl = _activeWindow.GetComponent<MultipleOfferWindowController>();
+                if (multiCtrl != null) multiCtrl.OnClosed -= HandleWindowClosed;
 
                 Destroy(_activeWindow);
                 _activeWindow = null;

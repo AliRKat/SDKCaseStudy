@@ -1,0 +1,42 @@
+{
+  "multipleOffers": [
+    {
+      "id": "multi_stage_5_pack",
+      "trigger": "STAGE_COMPLETE",
+      "conditions": [
+        {
+          "type": "StageCompleted",
+          "value": "1"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option",
+          "price": {
+            "currency": "Coins",
+            "amount": 300
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 600
+            }
+          ]
+        },
+        {
+          "id": "gems_option",
+          "price": {
+            "currency": "USD",
+            "amount": 4
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 40
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

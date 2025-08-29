@@ -111,4 +111,24 @@ namespace SDK.Code.Utils {
         }
     }
 
+    public static class MultipleOfferParser {
+        public static MultipleOffer Map(MultipleOfferDTO dto, Dictionary<string, string> userSegments) {
+            if (dto == null) return null;
+
+            var mappedOffers = dto.offers?
+                                   .Select(o => OfferParser.MapOffer(o, userSegments))
+                                   .Where(o => o != null)
+                                   .ToList()
+                               ?? new List<Offer>();
+
+            var conditions = dto.conditions?
+                                 .Select(OfferConditionFactory.Create)
+                                 .Where(c => c != null)
+                                 .ToList()
+                             ?? new List<IOfferCondition>();
+
+            return new MultipleOffer(dto.id, dto.trigger, mappedOffers, conditions);
+        }
+    }
+
 }

@@ -4,6 +4,19 @@ using System.Collections.Generic;
 namespace SDK.Code.Models {
 
     [Serializable]
+    public class MultipleOfferDTO {
+        public string id;
+        public string trigger;
+        public List<OfferDTO> offers;
+        public List<OfferConditionDTO> conditions;
+    }
+
+    [Serializable]
+    public class MultipleOfferListDTO {
+        public List<MultipleOfferDTO> multipleOffers;
+    }
+
+    [Serializable]
     public class BoughtOffersDTO {
         public List<string> offerIds = new();
     }

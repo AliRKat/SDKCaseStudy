@@ -207,6 +207,35 @@ namespace SDK.Code.Core.Services {
                 }
             });
         }
+
+        public void GetMultipleOffers(Dictionary<string, string> userSegments, Action<List<MultipleOffer>> onResponse) {
+            VoodooSDKMainThreadDispatcher.Enqueue(() => {
+                try {
+                    if (!_offersCache.TryGetValue("multipleOffers", out var jsonAsset) || jsonAsset == null) {
+                        Log.Error("[RequestService] No cached asset for multipleOffers");
+                        onResponse?.Invoke(new List<MultipleOffer>());
+                        return;
+                    }
+
+                    var dtoWrapper = JsonUtility.FromJson<MultipleOfferListDTO>(jsonAsset.text);
+                    if (dtoWrapper?.multipleOffers == null) {
+                        onResponse?.Invoke(new List<MultipleOffer>());
+                        return;
+                    }
+
+                    var mapped = dtoWrapper.multipleOffers
+                        .Select(dto => MultipleOfferParser.Map(dto, userSegments))
+                        .Where(o => o != null)
+                        .ToList();
+
+                    onResponse?.Invoke(mapped);
+                }
+                catch (Exception ex) {
+                    Log.Error($"[RequestService] Exception in GetMultipleOffers: {ex}");
+                    onResponse?.Invoke(new List<MultipleOffer>());
+                }
+            });
+        }
     }
 
 }

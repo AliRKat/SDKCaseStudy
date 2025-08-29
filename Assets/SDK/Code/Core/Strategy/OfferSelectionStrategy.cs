@@ -86,4 +86,20 @@ namespace SDK.Code.Core.Strategy {
         }
     }
 
+    public interface IMultipleOfferSelectionStrategy {
+        MultipleOffer Select(List<MultipleOffer> eligibleOffers);
+    }
+
+    public class RotationMultipleOfferSelectionStrategy : IMultipleOfferSelectionStrategy {
+        private int _lastIndex = -1;
+
+        public MultipleOffer Select(List<MultipleOffer> eligibleOffers) {
+            if (eligibleOffers == null || eligibleOffers.Count == 0)
+                return null;
+
+            _lastIndex = (_lastIndex + 1) % eligibleOffers.Count;
+            return eligibleOffers[_lastIndex];
+        }
+    }
+
 }

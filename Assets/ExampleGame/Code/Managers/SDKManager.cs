@@ -54,11 +54,20 @@ namespace ExampleGame.Code.Managers {
                     voodooSDKInstance.OfferSystem.GetEndlessOffers();
                     break;
                 case OnShowMultipleOffer _:
-                    UIManager.Instance.LoadPopUpWindow(WindowType.MultipleOffer);
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
-                    voodooSDKInstance.OfferSystem.GetMultipleOffers();
                     break;
                 case OnStageComplete _:
+                    Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    voodooSDKInstance.OfferSystem.GetMultipleOffers(SDKEventKeys.StageComplete,
+                        this,
+                        selected => {
+                            if (selected != null)
+                                UIManager.Instance.LoadPopUpWindow(WindowType.MultipleOffer, selected);
+                            else
+                                Debug.LogWarning("[SDKManager] No eligible multiple offers to show");
+                        }
+                    );
+                    break;
                 case OnLevelComplete _:
                     voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.LevelComplete, this, offer => {
                         if (offer != null) {
@@ -179,6 +188,7 @@ namespace ExampleGame.Code.Managers {
             eventBus.Register<OnShowChainedOffer>(this);
             eventBus.Register<OnShowEndlessOffer>(this);
             eventBus.Register<OnShowMultipleOffer>(this);
+            eventBus.Register<OnStageComplete>(this);
             eventBus.Register<OnLevelComplete>(this);
         }
 
@@ -187,6 +197,7 @@ namespace ExampleGame.Code.Managers {
             eventBus.Unregister<OnShowChainedOffer>(this);
             eventBus.Unregister<OnShowEndlessOffer>(this);
             eventBus.Unregister<OnShowMultipleOffer>(this);
+            eventBus.Unregister<OnStageComplete>(this);
             eventBus.Unregister<OnLevelComplete>(this);
         }
     }

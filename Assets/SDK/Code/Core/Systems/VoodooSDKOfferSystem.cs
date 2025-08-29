@@ -12,10 +12,13 @@ using UnityEngine;
 namespace SDK.Code.Core.Systems {
 
     public class VoodooSDKOfferSystem : AbstractBaseSystem, IOfferModule {
-        private Dictionary<string, Offer> _byId = new();
+        private readonly IMultipleOfferSelectionStrategy _multipleOfferSelectionStrategy;
+        private readonly Dictionary<string, Offer> _offersById = new();
         private Dictionary<string, List<Offer>> _byTrigger = new();
         private int _endlessCursor;
+        private List<MultipleOffer> _multipleOffers;
         private List<Offer> _offers;
+
         private VoodooSDKRequestService voodooSDKRequestService;
 
         public VoodooSDKOfferSystem(VoodooSDKConfiguration configuration,
@@ -23,6 +26,7 @@ namespace SDK.Code.Core.Systems {
             VoodooSDKRequestService requestService)
             : base(configuration, logHandler) {
             voodooSDKRequestService = requestService;
+            _multipleOfferSelectionStrategy = new RotationMultipleOfferSelectionStrategy();
         }
 
         #region Public API
@@ -116,8 +120,30 @@ namespace SDK.Code.Core.Systems {
             return null;
         }
 
-        public List<Offer> GetMultipleOffers() {
-            return null;
+        public void GetMultipleOffers(
+            string trigger,
+            IGameStateProvider state,
+            Action<MultipleOffer> callback,
+            Dictionary<string, string> userSegments = null) {
+            if (!EnsureSDKInitialized()) return;
+
+            userSegments ??= state.GetUserSegmentation();
+
+            voodooSDKRequestService.GetMultipleOffers(userSegments, offers => {
+                var eligible = offers
+                    .Where(o => o.Trigger == trigger && o.IsEligible(state))
+                    .ToList();
+
+                var selected = _multipleOfferSelectionStrategy.Select(eligible);
+
+                Log.Info(selected != null
+                    ? $"[OfferSystem] Selected MultipleOffer: {selected.Id}"
+                    : $"[OfferSystem] No eligible multiple offers for trigger {trigger}");
+
+                _multipleOffers = offers;
+                BuildIndexes(_offers, _multipleOffers);
+                callback?.Invoke(selected);
+            });
         }
 
         /// <summary>
@@ -137,40 +163,33 @@ namespace SDK.Code.Core.Systems {
         ///         </item>
         ///     </list>
         /// </param>
-        /// <remarks>
-        ///     <para>
-        ///         In the current mock environment, this method looks up the offer from the cached data
-        ///         and records it locally in <c>boughtOffers.json</c> under <see cref="Application.persistentDataPath" />.
-        ///     </para>
-        ///     <para>
-        ///         If the same offer is purchased multiple times, it will not be duplicated; the system logs
-        ///         that the offer has already been purchased and still treats the operation as successful.
-        ///     </para>
-        ///     <para>
-        ///         This method ensures all Unity API calls (e.g., file IO, JSON serialization) are executed
-        ///         on the Unity main thread via <see cref="VoodooSDKMainThreadDispatcher" />.
-        ///     </para>
-        /// </remarks>
         public void BuyOfferWithId(string offerId, Action<Offer> callback) {
-            RequestOffers(OfferType.Single, null, offers => {
-                var offer = offers.FirstOrDefault(o => o.Id == offerId);
+            if (!EnsureSDKInitialized()) {
+                callback?.Invoke(null);
+                return;
+            }
 
-                if (offer == null) {
-                    Log.Warning($"[OfferSystem] Offer with id {offerId} not found.");
-                    callback?.Invoke(null);
-                    return;
+            if (string.IsNullOrEmpty(offerId)) {
+                Log.Warning("[OfferSystem] BuyOfferWithId called with null/empty id.");
+                callback?.Invoke(null);
+                return;
+            }
+
+            if (!_offersById.TryGetValue(offerId, out var offer)) {
+                Log.Warning($"[OfferSystem] Offer with id {offerId} not found in indexed offers.");
+                callback?.Invoke(null);
+                return;
+            }
+
+            voodooSDKRequestService.MarkOfferAsPurchased(offer, success => {
+                if (success) {
+                    Log.Info($"[OfferSystem] Offer purchased: {offer.Id}");
+                    callback?.Invoke(offer);
                 }
-
-                voodooSDKRequestService.MarkOfferAsPurchased(offer, success => {
-                    if (success) {
-                        Log.Info($"[OfferSystem] Offer purchased: {offer.Id}");
-                        callback?.Invoke(offer);
-                    }
-                    else {
-                        Log.Error($"[OfferSystem] Failed to persist purchased offer: {offer.Id}");
-                        callback?.Invoke(null);
-                    }
-                });
+                else {
+                    Log.Error($"[OfferSystem] Failed to persist purchased offer: {offer.Id}");
+                    callback?.Invoke(null);
+                }
             });
         }
 
@@ -202,18 +221,20 @@ namespace SDK.Code.Core.Systems {
                 return;
             }
 
-            RequestOffers(OfferType.Single, userSegments, offers => {
-                var offer = offers.FirstOrDefault(o => o.Id == offerId);
+            if (string.IsNullOrEmpty(offerId)) {
+                Log.Warning("[OfferSystem] GetOfferById called with null/empty id.");
+                callback?.Invoke(null);
+                return;
+            }
 
-                if (offer != null) {
-                    Log.Info($"[OfferSystem] Found offer by id: {offer.Id}");
-                    callback?.Invoke(offer);
-                }
-                else {
-                    Log.Warning($"[OfferSystem] Offer with id {offerId} not found.");
-                    callback?.Invoke(null);
-                }
-            });
+            if (_offersById.TryGetValue(offerId, out var offer)) {
+                Log.Info($"[OfferSystem] Found offer by id: {offer.Id}");
+                callback?.Invoke(offer);
+            }
+            else {
+                Log.Warning($"[OfferSystem] Offer with id {offerId} not found in indexed offers.");
+                callback?.Invoke(null);
+            }
         }
 
         #endregion
@@ -245,30 +266,54 @@ namespace SDK.Code.Core.Systems {
 
             voodooSDKRequestService.GetOffers(resourceKey, userSegments, offers => {
                 _offers = offers.Where(o => o.Type == type).ToList();
-                BuildIndexes();
+                BuildIndexes(_offers);
                 callback?.Invoke(_offers);
             });
         }
 
-        /// <summary>
-        ///     Rebuilds internal lookup indexes for quick access to offers by trigger and by ID.
-        ///     Populates <c>_byTrigger</c> with offers grouped by their trigger,
-        ///     and <c>_byId</c> with offers keyed by their unique identifier.
-        /// </summary>
-        private void BuildIndexes() {
-            _byTrigger.Clear();
-            foreach (var offer in _offers) {
-                var key = string.IsNullOrEmpty(offer.Trigger) ? string.Empty : offer.Trigger;
-                if (!_byTrigger.TryGetValue(key, out var list)) {
-                    list = new List<Offer>();
-                    _byTrigger[key] = list;
+        private void BuildIndexes(List<Offer> offers, List<MultipleOffer> multipleOffers = null) {
+            _offersById.Clear();
+            _byTrigger = new Dictionary<string, List<Offer>>(StringComparer.OrdinalIgnoreCase);
+
+            if (offers != null)
+                foreach (var o in offers) {
+                    if (string.IsNullOrEmpty(o.Id)) {
+                        Log.Warning("[OfferSystem] Skipping offer with null/empty id during indexing.");
+                        continue;
+                    }
+
+                    if (_offersById.ContainsKey(o.Id))
+                        Log.Warning($"[OfferSystem] Duplicate offer id detected: {o.Id}. Overwriting previous entry.");
+                    _offersById[o.Id] = o;
+
+                    var key = string.IsNullOrEmpty(o.Trigger) ? string.Empty : o.Trigger;
+                    if (!_byTrigger.TryGetValue(key, out var list)) {
+                        list = new List<Offer>();
+                        _byTrigger[key] = list;
+                    }
+
+                    list.Add(o);
                 }
 
-                list.Add(offer);
-            }
+            if (multipleOffers != null)
+                foreach (var m in multipleOffers) {
+                    if (m?.Offers == null) continue;
 
-            _byId = new Dictionary<string, Offer>();
-            foreach (var o in _offers) _byId[o.Id] = o;
+                    foreach (var sub in m.Offers) {
+                        if (string.IsNullOrEmpty(sub.Id)) {
+                            Log.Warning("[OfferSystem] Skipping sub-offer with null/empty id during indexing.");
+                            continue;
+                        }
+
+                        if (_offersById.ContainsKey(sub.Id))
+                            Log.Warning(
+                                $"[OfferSystem] Duplicate sub-offer id detected: {sub.Id}. Overwriting previous entry.");
+                        _offersById[sub.Id] = sub;
+                    }
+                }
+
+            Log.Info($"[OfferSystem] Indexed total {_offersById.Count} offers (including sub-offers). " +
+                     $"Triggers: {_byTrigger?.Count ?? 0} keys -> [{string.Join(", ", _byTrigger.Keys)}]");
         }
 
         /// <summary>

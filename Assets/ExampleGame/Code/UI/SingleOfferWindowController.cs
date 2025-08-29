@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Code.UI.Buttons;
 using ExampleGame.Code.Enums;
 using TMPro;
@@ -7,13 +8,18 @@ using UnityEngine;
 namespace ExampleGame.Code.UI {
 
     [Serializable]
-    public class OfferWindowInitData {
+    public class MultipleOfferWindowInitData {
+        public List<SingleOfferWindowInitData> offerList;
+    }
+
+    [Serializable]
+    public class SingleOfferWindowInitData {
         public string offerId;
         public string price;
         public string reward;
     }
 
-    public class BaseWindowController : MonoBehaviour {
+    public class SingleOfferWindowController : MonoBehaviour {
         [SerializeField] private GameActionButton closeButton;
         [SerializeField] private GameActionButton buyOfferButton;
         [SerializeField] private TMP_Text priceText;
@@ -23,7 +29,7 @@ namespace ExampleGame.Code.UI {
 
         public void Init(object data) {
             _initData = data;
-            if (data is OfferWindowInitData offerWindowInitData) {
+            if (data is SingleOfferWindowInitData offerWindowInitData) {
                 priceText.text = $"Price: {offerWindowInitData.price}";
                 rewardText.text = $"Reward: {offerWindowInitData.reward}";
 
