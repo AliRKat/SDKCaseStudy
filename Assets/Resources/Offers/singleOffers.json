@@ -94,7 +94,7 @@
         { "segments": [{ "key": "geo", "value": "EU" }], "price": { "currency": "Coins", "amount": 280 }, "rewards": [{ "itemId": "Gems", "amount": 15 }] },
         { "segments": [{ "key": "geo", "value": "US" }], "price": { "currency": "Coins", "amount": 300 }, "rewards": [{ "itemId": "Gems", "amount": 15 }] }
       ],
-      "conditions": [{ "type": "StageCompleted", "value": "3" }]
+      "conditions": []
     },
     {
       "id": "manual_chest_offer",
