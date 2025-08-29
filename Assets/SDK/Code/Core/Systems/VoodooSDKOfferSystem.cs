@@ -120,6 +120,9 @@ namespace SDK.Code.Core.Systems {
             return null;
         }
 
+        public void BuyOfferWithId(string offerId) {
+        }
+
         #endregion
 
         #region Internal

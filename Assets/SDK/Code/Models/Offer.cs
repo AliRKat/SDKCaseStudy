@@ -58,6 +58,14 @@ namespace SDK.Code.Models {
             return
                 $"[Offer] Id={Id}, Type={Type}, Trigger={Trigger}, Price={Price.Amount} {Price.Currency}, Rewards=({rewardsStr}), NextOffer={NextOfferId}, Conditions=({conditionsStr})";
         }
+
+        public string GetRewardsString() {
+            var rewardsStr = Rewards is { Count: > 0 }
+                ? string.Join(", ", Rewards.ConvertAll(r => $"{r.Amount} {r.ItemId}"))
+                : "No Rewards";
+
+            return rewardsStr;
+        }
     }
 
     public enum OfferType {
@@ -75,6 +83,10 @@ namespace SDK.Code.Models {
 
         public string Currency { get; }
         public int Amount { get; }
+
+        public override string ToString() {
+            return $"{Currency}: {Amount}";
+        }
     }
 
     public class OfferReward {

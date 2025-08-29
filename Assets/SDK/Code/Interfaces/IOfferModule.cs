@@ -14,6 +14,7 @@ namespace SDK.Code.Interfaces {
         public List<Offer> GetMultipleOffers();
         public List<Offer> GetChainedOffers();
         public List<Offer> GetEndlessOffers();
+        public void BuyOfferWithId(string offerId);
     }
 
 }

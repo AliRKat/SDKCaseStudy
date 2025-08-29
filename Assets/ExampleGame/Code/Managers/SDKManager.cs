@@ -34,7 +34,7 @@ namespace ExampleGame.Code.Managers {
                     voodooSDKInstance.OfferSystem.GetSingleOfferManual(this, offer => {
                         if (offer != null) {
                             Debug.Log($"[SDKManager] Showing manual offer: {offer.Id}");
-                            UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                            UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer, offer);
                         }
                         else {
                             Debug.Log("[SDKManager] No manual offer found");
@@ -61,7 +61,7 @@ namespace ExampleGame.Code.Managers {
                     voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.LevelComplete, this, offer => {
                         if (offer != null) {
                             Debug.Log($"[SDKManager] Showing level complete offer: {offer.Id}");
-                            UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                            UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer, offer);
                         }
                         else {
                             Debug.Log("[SDKManager] No eligible offer found for LEVEL_COMPLETE");
@@ -108,6 +108,10 @@ namespace ExampleGame.Code.Managers {
                 ["playerType"] = GetPlayerType()
             };
             return userSegments;
+        }
+
+        public void HandleBuyOffer(string offerId) {
+            voodooSDKInstance.OfferSystem.BuyOfferWithId(offerId);
         }
 
         public void Init() {

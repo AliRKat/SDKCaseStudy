@@ -5,6 +5,7 @@ using Core;
 using ExampleGame.Code.Enums;
 using ExampleGame.Code.Events;
 using ExampleGame.Code.UI;
+using SDK.Code.Models;
 using TMPro;
 using UnityEngine;
 
@@ -108,6 +109,15 @@ namespace ExampleGame.Code.Managers {
                     UpdateHUD();
                     break;
 
+                case GameAction.BuyOffer:
+                    if (data is BaseWindowController offerWindow) {
+                        var initData = offerWindow.GetInitData<OfferWindowInitData>();
+                        if (initData != null) GameManager.Instance.SDKManager.HandleBuyOffer(initData.offerId);
+                        offerWindow.Close();
+                    }
+
+                    break;
+
                 default:
                     Debug.LogWarning($"[UIManager][HandleGameAction] Unhandled action: {action}");
                     break;
@@ -115,13 +125,26 @@ namespace ExampleGame.Code.Managers {
         }
 
         public void LoadPopUpWindow(WindowType windowType, object data = null) {
-            if (_activeWindow != null) {
-                _windowQueue.Enqueue((windowType, data));
-                Debug.Log($"[UIManager] Queued popup window: {windowType}");
-                return;
-            }
+            switch (windowType) {
+                case WindowType.SingleOffer:
+                    if (data is Offer offer) {
+                        var windowInitData = new OfferWindowInitData {
+                            offerId = offer.Id,
+                            price = offer.Price.ToString(),
+                            reward = offer.GetRewardsString()
+                        };
 
-            ShowWindow(windowType, data);
+                        if (_activeWindow != null) {
+                            _windowQueue.Enqueue((windowType, windowInitData));
+                            Debug.Log($"[UIManager] Queued popup window: {windowType}");
+                            return;
+                        }
+
+                        ShowWindow(windowType, windowInitData);
+                    }
+
+                    break;
+            }
         }
 
         private void ShowWindow(WindowType windowType, object data) {
