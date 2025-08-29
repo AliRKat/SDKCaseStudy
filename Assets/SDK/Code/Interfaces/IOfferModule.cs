@@ -15,6 +15,9 @@ namespace SDK.Code.Interfaces {
         public List<Offer> GetChainedOffers();
         public List<Offer> GetEndlessOffers();
         public void BuyOfferWithId(string offerId, Action<Offer> callback);
+
+        public void GetOfferById(string offerId, Action<Offer> callback,
+            Dictionary<string, string> userSegments = null);
     }
 
 }

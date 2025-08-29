@@ -10,6 +10,7 @@ using SDK.Code.Core.Enums;
 using SDK.Code.Core.Strategy;
 using SDK.Code.Interfaces;
 using SDK.Code.Models;
+using SDK.Code.Utils;
 using UnityEngine;
 
 namespace ExampleGame.Code.Managers {
@@ -112,16 +113,52 @@ namespace ExampleGame.Code.Managers {
         }
 
         public void HandleBuyOffer(string offerId, Action<Offer> callback) {
-            voodooSDKInstance.OfferSystem.BuyOfferWithId(offerId, offer => {
-                if (offer != null) {
-                    Debug.Log($"[SDKManager] Offer purchased successfully: {offer.Id}");
-                    callback?.Invoke(offer);
-                }
-                else {
-                    Debug.LogWarning($"[SDKManager] Failed to purchase offer with id: {offerId}");
+            voodooSDKInstance.OfferSystem.GetOfferById(offerId, offer => {
+                if (offer == null) {
+                    Debug.LogWarning($"[SDKManager] Offer not found: {offerId}");
                     callback?.Invoke(null);
+                    return;
                 }
+
+                var type = Converters.ToCurrencyType(offer.Price.Currency);
+                var amount = offer.Price.Amount;
+
+                if (!GameManager.Instance.CurrencyManager.TrySpend(type, amount)) {
+                    Debug.LogWarning($"[SDKManager] Not enough currency for offer {offer.Id}");
+                    callback?.Invoke(null);
+                    return;
+                }
+
+                voodooSDKInstance.OfferSystem.BuyOfferWithId(offerId, purchasedOffer => {
+                    if (purchasedOffer != null) {
+                        Debug.Log($"[SDKManager] Offer purchased successfully: {purchasedOffer.Id}");
+                        RegisterRewards(purchasedOffer.Rewards);
+                        callback?.Invoke(purchasedOffer);
+                    }
+                    else {
+                        Debug.LogWarning($"[SDKManager] Failed to finalize purchase of offer {offerId}");
+                        callback?.Invoke(null);
+                    }
+                });
             });
+        }
+
+        private void RegisterRewards(List<OfferReward> rewards) {
+            if (rewards == null || rewards.Count == 0) {
+                Debug.LogWarning("[SDKManager] No rewards to register.");
+                return;
+            }
+
+            foreach (var reward in rewards) {
+                var type = Converters.ToCurrencyType(reward.ItemId);
+                if (type == CurrencyType.None) {
+                    Debug.LogWarning($"[SDKManager] Unsupported reward type: {reward.ItemId}");
+                    continue;
+                }
+
+                GameManager.Instance.CurrencyManager.Add(type, reward.Amount);
+                Debug.Log($"[SDKManager] Granted {reward.Amount} {type}");
+            }
         }
 
         public void Init() {

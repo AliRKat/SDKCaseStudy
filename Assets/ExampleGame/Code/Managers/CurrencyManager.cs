@@ -33,7 +33,22 @@ namespace ExampleGame.Code.Managers {
             return Get(type) >= amount;
         }
 
-        public bool Spend(CurrencyType type, int amount) {
+        public bool TrySpend(CurrencyType type, int amount) {
+            if (type == CurrencyType.Free) {
+                Debug.Log("[CurrencyManager] Free offer, no spending required.");
+                return true;
+            }
+
+            if (type == CurrencyType.USD || type == CurrencyType.EUR) {
+                Debug.Log($"[CurrencyManager] Real money offer detected ({amount} {type}). " +
+                          "Not processed in mock environment.");
+                return true;
+            }
+
+            return Spend(type, amount);
+        }
+
+        private bool Spend(CurrencyType type, int amount) {
             if (amount < 0)
                 throw new ArgumentOutOfRangeException(nameof(amount));
             if (!HasEnough(type, amount))

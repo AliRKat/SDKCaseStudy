@@ -120,6 +120,37 @@ namespace SDK.Code.Core.Systems {
             return null;
         }
 
+        /// <summary>
+        ///     Marks an offer as purchased by its unique identifier.
+        /// </summary>
+        /// <param name="offerId">
+        ///     The unique string identifier of the offer to purchase (as defined in the offer JSON).
+        /// </param>
+        /// <param name="callback">
+        ///     Callback invoked once the purchase process has completed:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>If the purchase succeeds, the purchased <see cref="Offer" /> is passed.</description>
+        ///         </item>
+        ///         <item>
+        ///             <description>If the offer could not be found or the purchase fails, <c>null</c> is passed.</description>
+        ///         </item>
+        ///     </list>
+        /// </param>
+        /// <remarks>
+        ///     <para>
+        ///         In the current mock environment, this method looks up the offer from the cached data
+        ///         and records it locally in <c>boughtOffers.json</c> under <see cref="Application.persistentDataPath" />.
+        ///     </para>
+        ///     <para>
+        ///         If the same offer is purchased multiple times, it will not be duplicated; the system logs
+        ///         that the offer has already been purchased and still treats the operation as successful.
+        ///     </para>
+        ///     <para>
+        ///         This method ensures all Unity API calls (e.g., file IO, JSON serialization) are executed
+        ///         on the Unity main thread via <see cref="VoodooSDKMainThreadDispatcher" />.
+        ///     </para>
+        /// </remarks>
         public void BuyOfferWithId(string offerId, Action<Offer> callback) {
             RequestOffers(OfferType.Single, null, offers => {
                 var offer = offers.FirstOrDefault(o => o.Id == offerId);
@@ -140,6 +171,48 @@ namespace SDK.Code.Core.Systems {
                         callback?.Invoke(null);
                     }
                 });
+            });
+        }
+
+        /// <summary>
+        ///     Retrieves a single offer by its unique identifier.
+        /// </summary>
+        /// <param name="offerId">
+        ///     The unique string identifier of the offer (as defined in the offer JSON).
+        /// </param>
+        /// <param name="callback">
+        ///     Callback invoked once the lookup is complete:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>If an offer with the given ID exists, the <see cref="Offer" /> instance is provided.</description>
+        ///         </item>
+        ///         <item>
+        ///             <description>If no offer is found, <c>null</c> is passed.</description>
+        ///         </item>
+        ///     </list>
+        /// </param>
+        /// <param name="userSegments">
+        ///     Optional user segmentation data used when mapping offers.
+        ///     If <c>null</c>, defaults will be applied by the offer system.
+        /// </param>
+        public void GetOfferById(string offerId, Action<Offer> callback,
+            Dictionary<string, string> userSegments = null) {
+            if (!EnsureSDKInitialized()) {
+                callback?.Invoke(null);
+                return;
+            }
+
+            RequestOffers(OfferType.Single, userSegments, offers => {
+                var offer = offers.FirstOrDefault(o => o.Id == offerId);
+
+                if (offer != null) {
+                    Log.Info($"[OfferSystem] Found offer by id: {offer.Id}");
+                    callback?.Invoke(offer);
+                }
+                else {
+                    Log.Warning($"[OfferSystem] Offer with id {offerId} not found.");
+                    callback?.Invoke(null);
+                }
             });
         }
 
