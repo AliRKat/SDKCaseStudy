@@ -39,16 +39,24 @@ namespace SDK.Code.Core.Systems {
         ///     Optional user segment data to customize the offer request.
         ///     Defaults to null.
         /// </param>
-        public void GetSingleOfferManual(IGameStateProvider state, Action<Offer> callback,
+        public void GetSingleOfferManual(
+            IGameStateProvider state,
+            Action<Offer> callback,
             Dictionary<string, string> userSegments = null) {
             if (!EnsureSDKInitialized()) return;
 
+            userSegments ??= state.GetUserSegmentation();
+
             RequestOffers(OfferType.Single, userSegments, offers => {
-                var eligible = GetEligibleOffers("MANUAL_SHOW", state);
-                var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
+                var eligible = GetEligibleOffers("MANUAL_SHOW", state)
+                    .Where(o => o.Type == OfferType.Single)
+                    .ToList();
+
+                var strategy = Configuration.OfferSelectionStrategy ?? new RotationOfferSelectionStrategy();
+                var offer = strategy.Select(eligible, "MANUAL_SHOW", state);
 
                 Log.Info(offer != null
-                    ? $"[OfferSystem] Selected Manual Single Offer: {offer.Id}"
+                    ? $"[OfferSystem] Selected Manual Single Offer: {offer}"
                     : "[OfferSystem] No manual single offer found.");
 
                 callback?.Invoke(offer);
@@ -93,7 +101,7 @@ namespace SDK.Code.Core.Systems {
                 var offer = strategy.Select(eligible, trigger, state);
 
                 Log.Info(offer != null
-                    ? $"[OfferSystem] Selected Single Offer for {trigger}: {offer.Id}"
+                    ? $"[OfferSystem] Selected Single Offer for {trigger}: {offer}"
                     : $"[OfferSystem] No eligible single offer for {trigger}");
 
                 callback?.Invoke(offer);

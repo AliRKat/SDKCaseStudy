@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using Code.Core;
 using Code.Events;
 using Core;
 using ExampleGame.Code.Enums;
 using ExampleGame.Code.Events;
+using ExampleGame.Code.UI;
 using TMPro;
 using UnityEngine;
 
@@ -21,6 +23,9 @@ namespace ExampleGame.Code.Managers {
         [SerializeField] private TMP_Text regionText;
         [SerializeField] private TMP_Text playerTypeText;
 
+        private readonly Queue<(WindowType, object)> _windowQueue = new();
+        private GameObject _activeWindow;
+
         private void Awake() {
             Instance = this;
             DontDestroyOnLoad(this);
@@ -36,9 +41,9 @@ namespace ExampleGame.Code.Managers {
 
         public void OnEvent(IEvent @event) {
             switch (@event) {
-                case OnCurrencyChanged change:
-                case OnLevelComplete complete:
-                case OnStageComplete stageComplete:
+                case OnCurrencyChanged:
+                case OnLevelComplete:
+                case OnStageComplete:
                     UpdateHUD();
                     break;
             }
@@ -92,12 +97,12 @@ namespace ExampleGame.Code.Managers {
                 case GameAction.StageComplete:
                     GameManager.Instance.GameplayManager.CompleteStage();
                     break;
-                
+
                 case GameAction.SwapRegion:
                     GameManager.Instance.GameplayManager.SwapRegion();
                     UpdateHUD();
                     break;
-                
+
                 case GameAction.SwapPlayerType:
                     GameManager.Instance.GameplayManager.SwapPlayerType();
                     UpdateHUD();
@@ -110,23 +115,50 @@ namespace ExampleGame.Code.Managers {
         }
 
         public void LoadPopUpWindow(WindowType windowType, object data = null) {
+            if (_activeWindow != null) {
+                _windowQueue.Enqueue((windowType, data));
+                Debug.Log($"[UIManager] Queued popup window: {windowType}");
+                return;
+            }
+
+            ShowWindow(windowType, data);
+        }
+
+        private void ShowWindow(WindowType windowType, object data) {
             var windowName = windowType.ToString();
             var prefab = Resources.Load<GameObject>($"{WindowResourcePath}{windowName}");
 
             if (prefab == null) {
                 Debug.LogError(
-                    $"[UIManager][LoadPopUpWindow] Failed to load window prefab: {WindowResourcePath}{windowName}"
-                );
+                    $"[UIManager][LoadPopUpWindow] Failed to load window prefab: {WindowResourcePath}{windowName}");
                 return;
             }
 
-            var instance = Instantiate(prefab, windowParent);
-            instance.name = windowName;
+            _activeWindow = Instantiate(prefab, windowParent);
+            _activeWindow.name = windowName;
 
-            var controller = instance.GetComponent<BaseWindowController>();
-            if (controller != null) controller.Init(data);
+            var controller = _activeWindow.GetComponent<BaseWindowController>();
+            if (controller != null) {
+                controller.Init(data);
+                controller.OnClosed += HandleWindowClosed;
+            }
 
             Debug.Log($"[UIManager][LoadPopUpWindow] Loaded popup window: {windowName}");
+        }
+
+        private void HandleWindowClosed() {
+            if (_activeWindow != null) {
+                var controller = _activeWindow.GetComponent<BaseWindowController>();
+                if (controller != null) controller.OnClosed -= HandleWindowClosed;
+
+                Destroy(_activeWindow);
+                _activeWindow = null;
+            }
+
+            if (_windowQueue.Count > 0) {
+                var (nextType, nextData) = _windowQueue.Dequeue();
+                ShowWindow(nextType, nextData);
+            }
         }
 
         private void UpdateHUD() {

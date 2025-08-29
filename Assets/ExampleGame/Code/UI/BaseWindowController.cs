@@ -1,15 +1,22 @@
+using System;
 using Code.UI.Buttons;
 using ExampleGame.Code.Enums;
 using UnityEngine;
 
-public class BaseWindowController : MonoBehaviour {
-    [SerializeField] private GameActionButton closeButton;
+namespace ExampleGame.Code.UI {
 
-    public void Init(object data) {
-        closeButton.RegisterClick(GameAction.CloseWindow, this);
+    public class BaseWindowController : MonoBehaviour {
+        [SerializeField] private GameActionButton closeButton;
+        public event Action OnClosed;
+
+        public void Init(object data) {
+            closeButton.RegisterClick(GameAction.CloseWindow, this);
+        }
+
+        public void Close() {
+            OnClosed?.Invoke();
+            Destroy(gameObject);
+        }
     }
 
-    public void Close() {
-        Destroy(gameObject);
-    }
 }

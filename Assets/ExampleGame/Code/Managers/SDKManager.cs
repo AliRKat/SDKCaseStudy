@@ -16,7 +16,7 @@ namespace ExampleGame.Code.Managers {
     public class SDKManager : IBaseEventReceiver, IGameStateProvider {
         private readonly string AppKey = "VoodooSDKAppKey";
         private readonly string ServerURL = "http://localhost:5000/";
-        private readonly int sessionTimeout = 5;
+        private readonly int sessionTimeout = 60; // seconds
         private CurrencyManager currencyManager;
         private EventBus eventBus;
         private GameplayManager gameplayManager;
