@@ -125,21 +125,17 @@ namespace SDK.Code.Core.Services {
         ///     </para>
         /// </remarks>
         private void EnsureCache() {
-            if (_offersCache != null) return;
-            try {
-                var assets = Resources.LoadAll<TextAsset>(_resourcePath);
-                if (assets == null || assets.Length == 0) {
-                    Log.Warning($"[RequestService] No TextAssets found at {_resourcePath}");
-                    _offersCache = new Dictionary<string, TextAsset>();
-                    return;
-                }
+            var assets = Resources.LoadAll<TextAsset>(_resourcePath);
+            Log.Info($"[RequestService] Loaded {assets?.Length ?? 0} assets from {_resourcePath}");
 
-                _offersCache = assets.ToDictionary(asset => asset.name, asset => asset);
-                Log.Info($"[RequestService] Cached {_offersCache.Count} offer files from {_resourcePath}");
+            if (assets == null || assets.Length == 0) {
+                _offersCache = new Dictionary<string, TextAsset>();
+                return;
             }
-            catch (Exception ex) {
-                Log.Error($"[RequestService] Exception while caching offers: {ex}");
-            }
+
+            foreach (var asset in assets) Log.Info($"[RequestService] Cached asset: {asset.name}");
+
+            _offersCache = assets.ToDictionary(asset => asset.name, asset => asset);
         }
     }
 

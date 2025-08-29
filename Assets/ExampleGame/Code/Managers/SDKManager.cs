@@ -15,11 +15,11 @@ namespace ExampleGame.Code.Managers {
     public class SDKManager : IBaseEventReceiver, IGameStateProvider {
         private readonly string AppKey = "VoodooSDKAppKey";
         private readonly string ServerURL = "http://localhost:5000/";
+        private readonly int sessionTimeout = 5;
         private CurrencyManager currencyManager;
         private EventBus eventBus;
         private GameplayManager gameplayManager;
         private VoodooSDK voodooSDKInstance;
-        private readonly int sessionTimeout = 5; 
 
         public SDKManager(EventBus eventBus, CurrencyManager currencyManager, GameplayManager gameplayManager) {
             this.eventBus = eventBus;
@@ -27,17 +27,6 @@ namespace ExampleGame.Code.Managers {
             this.gameplayManager = gameplayManager;
         }
 
-        public void Init() {
-            voodooSDKInstance = VoodooSDK.Instance;
-            SubscribeToEvents();
-
-            var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
-                .EnableLogging()
-                .SetSessionTimeout(sessionTimeout)
-                .SetGameStateProvider(this);
-            voodooSDKInstance.Init(sdkConfiguration);
-        }
-        
         public void OnEvent(IEvent @event) {
             switch (@event) {
                 case OnShowSingleOffer _:
@@ -66,6 +55,7 @@ namespace ExampleGame.Code.Managers {
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
                     voodooSDKInstance.OfferSystem.GetMultipleOffers();
                     break;
+                case OnStageComplete _:
                 case OnLevelComplete _:
                     voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.LevelComplete, this, offer => {
                         if (offer != null) {
@@ -106,17 +96,29 @@ namespace ExampleGame.Code.Managers {
         public string GetRegion() {
             return gameplayManager.GetRegion();
         }
-        
+
         public string GetPlayerType() {
             return gameplayManager.GetPlayerType();
         }
-        
+
         public Dictionary<string, string> GetUserSegmentation() {
             var userSegments = new Dictionary<string, string> {
                 ["geo"] = GetRegion(),
                 ["playerType"] = GetPlayerType()
             };
             return userSegments;
+        }
+
+        public void Init() {
+            voodooSDKInstance = VoodooSDK.Instance;
+            SubscribeToEvents();
+
+            var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
+                .EnableLogging()
+                .SetSessionTimeout(sessionTimeout)
+                .SetGameStateProvider(this)
+                .SetOfferReadyAction(offer => { UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer, offer); });
+            voodooSDKInstance.Init(sdkConfiguration);
         }
 
         private void SubscribeToEvents() {

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExampleGame.Code.Enums;
-using ExampleGame.Code.Managers;
 using SDK.Code.Core.Enums;
 using SDK.Code.Core.Handlers;
 using SDK.Code.Core.Services;
@@ -202,28 +200,32 @@ namespace SDK.Code.Core.Systems {
             Log.Debug("[OfferSystem][OnSessionStarted] Session started.");
             GetSingleOffer(SDKEventKeys.SessionStart, Configuration.GetGameStateProvider(), offer => {
                 if (offer != null) {
-                    Log.Debug($"[OfferSystem][OnSessionStarted] Showing level complete offer: {offer}");
-                    UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                    Log.Debug($"[OfferSystem][OnSessionStarted] Eligible offer found: {offer}");
+
+                    var callback = Configuration.GetOfferReadyAction();
+                    callback?.Invoke(offer);
                 }
                 else {
-                    Log.Warning("[OfferSystem][OnSessionStarted] No eligible offer found for LEVEL_COMPLETE");
+                    Log.Warning("[OfferSystem][OnSessionStarted] No eligible offer found for SESSION_START");
                 }
             });
         }
-        
+
         internal override void OnSessionUpdate() {
             Log.Debug("[OfferSystem] Session updated.");
             GetSingleOffer(SDKEventKeys.SessionUpdate, Configuration.GetGameStateProvider(), offer => {
                 if (offer != null) {
-                    Log.Debug($"[OfferSystem][OnSessionUpdate] Showing level complete offer: {offer}");
-                    UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer);
+                    Log.Debug($"[OfferSystem][OnSessionUpdate] Eligible offer found: {offer}");
+
+                    var callback = Configuration.GetOfferReadyAction();
+                    callback?.Invoke(offer);
                 }
                 else {
-                    Log.Warning("[OfferSystem][OnSessionUpdate] No eligible offer found for LEVEL_COMPLETE");
+                    Log.Warning("[OfferSystem][OnSessionUpdate] No eligible offer found for SESSION_UPDATE");
                 }
             });
         }
-        
+
         internal override void OnSessionEnded() {
             Log.Debug("[OfferSystem] Session ended.");
         }
