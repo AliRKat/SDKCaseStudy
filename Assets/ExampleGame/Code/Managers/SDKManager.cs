@@ -7,6 +7,7 @@ using ExampleGame.Code.Enums;
 using ExampleGame.Code.Events;
 using SDK.Code.Core;
 using SDK.Code.Core.Enums;
+using SDK.Code.Core.Strategy;
 using SDK.Code.Interfaces;
 using UnityEngine;
 
@@ -117,6 +118,7 @@ namespace ExampleGame.Code.Managers {
                 .EnableLogging()
                 .SetSessionTimeout(sessionTimeout)
                 .SetGameStateProvider(this)
+                .SetOfferSelectionStrategy(new RotationOfferSelectionStrategy())
                 .SetOfferReadyAction(offer => { UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer, offer); });
             voodooSDKInstance.Init(sdkConfiguration);
         }

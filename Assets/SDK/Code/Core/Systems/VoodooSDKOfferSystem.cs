@@ -4,6 +4,7 @@ using System.Linq;
 using SDK.Code.Core.Enums;
 using SDK.Code.Core.Handlers;
 using SDK.Code.Core.Services;
+using SDK.Code.Core.Strategy;
 using SDK.Code.Interfaces;
 using SDK.Code.Models;
 using UnityEngine;
@@ -83,8 +84,13 @@ namespace SDK.Code.Core.Systems {
             userSegments ??= state.GetUserSegmentation();
 
             RequestOffers(OfferType.Single, userSegments, offers => {
-                var eligible = GetEligibleOffers(trigger, state);
-                var offer = eligible.FirstOrDefault(o => o.Type == OfferType.Single);
+                var eligible = GetEligibleOffers(trigger, state)
+                    .Where(o => o.Type == OfferType.Single)
+                    .ToList();
+
+                // RotationOfferSelectionStrategy is the default
+                var strategy = Configuration.OfferSelectionStrategy ?? new RotationOfferSelectionStrategy();
+                var offer = strategy.Select(eligible, trigger, state);
 
                 Log.Info(offer != null
                     ? $"[OfferSystem] Selected Single Offer for {trigger}: {offer.Id}"

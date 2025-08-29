@@ -1,4 +1,5 @@
 using System;
+using SDK.Code.Core.Strategy;
 using SDK.Code.Interfaces;
 using SDK.Code.Models;
 using UnityEngine;
@@ -36,6 +37,8 @@ namespace SDK.Code.Core {
             AppKey = appKey;
             ServerURL = serverUrl;
         }
+
+        internal IOfferSelectionStrategy OfferSelectionStrategy { get; private set; }
 
         #region Setters
 
@@ -113,6 +116,11 @@ namespace SDK.Code.Core {
             return this;
         }
 
+        public VoodooSDKConfiguration SetOfferSelectionStrategy(IOfferSelectionStrategy strategy) {
+            OfferSelectionStrategy = strategy;
+            return this;
+        }
+
         #endregion
 
         #region Getters
@@ -178,6 +186,10 @@ namespace SDK.Code.Core {
         /// </returns>
         public Action<Offer> GetOfferReadyAction() {
             return OnOfferReady;
+        }
+
+        public IOfferSelectionStrategy GetOfferSelectionStrategy() {
+            return OfferSelectionStrategy;
         }
 
         #endregion
