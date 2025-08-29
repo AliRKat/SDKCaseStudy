@@ -120,7 +120,27 @@ namespace SDK.Code.Core.Systems {
             return null;
         }
 
-        public void BuyOfferWithId(string offerId) {
+        public void BuyOfferWithId(string offerId, Action<Offer> callback) {
+            RequestOffers(OfferType.Single, null, offers => {
+                var offer = offers.FirstOrDefault(o => o.Id == offerId);
+
+                if (offer == null) {
+                    Log.Warning($"[OfferSystem] Offer with id {offerId} not found.");
+                    callback?.Invoke(null);
+                    return;
+                }
+
+                voodooSDKRequestService.MarkOfferAsPurchased(offer, success => {
+                    if (success) {
+                        Log.Info($"[OfferSystem] Offer purchased: {offer.Id}");
+                        callback?.Invoke(offer);
+                    }
+                    else {
+                        Log.Error($"[OfferSystem] Failed to persist purchased offer: {offer.Id}");
+                        callback?.Invoke(null);
+                    }
+                });
+            });
         }
 
         #endregion

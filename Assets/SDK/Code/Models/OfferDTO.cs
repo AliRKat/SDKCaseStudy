@@ -4,6 +4,11 @@ using System.Collections.Generic;
 namespace SDK.Code.Models {
 
     [Serializable]
+    public class BoughtOffersDTO {
+        public List<string> offerIds = new();
+    }
+
+    [Serializable]
     public class OfferListDTO {
         public List<OfferDTO> offers;
     }
@@ -54,5 +59,5 @@ namespace SDK.Code.Models {
         public string type;
         public string value;
     }
-    
+
 }

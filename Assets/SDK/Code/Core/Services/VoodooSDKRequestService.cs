@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using SDK.Code.Core.Handlers;
 using SDK.Code.Interfaces;
@@ -136,6 +137,75 @@ namespace SDK.Code.Core.Services {
             foreach (var asset in assets) Log.Info($"[RequestService] Cached asset: {asset.name}");
 
             _offersCache = assets.ToDictionary(asset => asset.name, asset => asset);
+        }
+
+        /// <summary>
+        ///     Marks an offer as purchased and persists the purchase state locally.
+        /// </summary>
+        /// <param name="offer">
+        ///     The <see cref="Offer" /> object representing the purchased offer.
+        ///     Only the <c>Id</c> is stored, as all other details can be retrieved
+        ///     from the main offer configuration files (<c>singleOffers.json</c>, etc.).
+        /// </param>
+        /// <param name="onComplete">
+        ///     Callback invoked once the purchase state has been processed:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description><c>true</c> if the offer was successfully marked as purchased or already present.</description>
+        ///         </item>
+        ///         <item>
+        ///             <description><c>false</c> if an exception occurred during persistence.</description>
+        ///         </item>
+        ///     </list>
+        /// </param>
+        /// <remarks>
+        ///     <para>
+        ///         In a production environment, this method would normally trigger a server-side request
+        ///         to validate and record the purchase. Since this SDK operates with mock/local data,
+        ///         it instead writes the purchase state to a <c>boughtOffers.json</c> file under
+        ///         <see cref="Application.persistentDataPath" />.
+        ///     </para>
+        ///     <para>
+        ///         If the file does not exist, it is created with a new <see cref="BoughtOffersDTO" /> structure.
+        ///         If the offer has already been purchased, the callback still succeeds with <c>true</c>,
+        ///         and a debug log is emitted.
+        ///     </para>
+        ///     <para>
+        ///         This method ensures Unity API calls (such as <see cref="Application.persistentDataPath" />)
+        ///         are executed on the Unity main thread via <see cref="VoodooSDKMainThreadDispatcher" />.
+        ///     </para>
+        /// </remarks>
+        public void MarkOfferAsPurchased(Offer offer, Action<bool> onComplete) {
+            VoodooSDKMainThreadDispatcher.Enqueue(() => {
+                try {
+                    var path = Path.Combine(Application.persistentDataPath, "boughtOffers.json");
+
+                    BoughtOffersDTO dto;
+                    if (File.Exists(path)) {
+                        var json = File.ReadAllText(path);
+                        dto = JsonUtility.FromJson<BoughtOffersDTO>(json) ?? new BoughtOffersDTO();
+                    }
+                    else {
+                        dto = new BoughtOffersDTO();
+                    }
+
+                    if (dto.offerIds.Contains(offer.Id)) {
+                        Log.Info($"[RequestService] Offer {offer.Id} already purchased.");
+                        onComplete?.Invoke(true);
+                        return;
+                    }
+
+                    dto.offerIds.Add(offer.Id);
+                    File.WriteAllText(path, JsonUtility.ToJson(dto, true));
+
+                    Log.Info($"[RequestService] Saved boughtOffers.json at {path}");
+                    onComplete?.Invoke(true);
+                }
+                catch (Exception ex) {
+                    Log.Error($"[RequestService] Failed to mark offer as purchased: {ex}");
+                    onComplete?.Invoke(false);
+                }
+            });
         }
     }
 

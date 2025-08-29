@@ -9,6 +9,7 @@ using SDK.Code.Core;
 using SDK.Code.Core.Enums;
 using SDK.Code.Core.Strategy;
 using SDK.Code.Interfaces;
+using SDK.Code.Models;
 using UnityEngine;
 
 namespace ExampleGame.Code.Managers {
@@ -110,8 +111,17 @@ namespace ExampleGame.Code.Managers {
             return userSegments;
         }
 
-        public void HandleBuyOffer(string offerId) {
-            voodooSDKInstance.OfferSystem.BuyOfferWithId(offerId);
+        public void HandleBuyOffer(string offerId, Action<Offer> callback) {
+            voodooSDKInstance.OfferSystem.BuyOfferWithId(offerId, offer => {
+                if (offer != null) {
+                    Debug.Log($"[SDKManager] Offer purchased successfully: {offer.Id}");
+                    callback?.Invoke(offer);
+                }
+                else {
+                    Debug.LogWarning($"[SDKManager] Failed to purchase offer with id: {offerId}");
+                    callback?.Invoke(null);
+                }
+            });
         }
 
         public void Init() {

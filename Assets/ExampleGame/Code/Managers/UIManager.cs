@@ -112,8 +112,14 @@ namespace ExampleGame.Code.Managers {
                 case GameAction.BuyOffer:
                     if (data is BaseWindowController offerWindow) {
                         var initData = offerWindow.GetInitData<OfferWindowInitData>();
-                        if (initData != null) GameManager.Instance.SDKManager.HandleBuyOffer(initData.offerId);
-                        offerWindow.Close();
+                        if (initData != null)
+                            GameManager.Instance.SDKManager.HandleBuyOffer(initData.offerId, offer => {
+                                if (offer != null)
+                                    Debug.Log($"Player bought {offer.Id}, Rewards: {offer.GetRewardsString()}");
+                                else
+                                    Debug.LogWarning("Purchase failed");
+                                offerWindow.Close();
+                            });
                     }
 
                     break;
