@@ -32,6 +32,19 @@ namespace ExampleGame.Code.Managers {
             this.currencyManager = currencyManager;
             this.gameplayManager = gameplayManager;
         }
+        
+        public void Init() {
+            voodooSDKInstance = VoodooSDK.Instance;
+            SubscribeToEvents();
+
+            var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
+                .EnableLogging()
+                .SetSessionTimeout(sessionTimeout)
+                .SetGameStateProvider(this)
+                .SetOfferSelectionStrategy(new RotationOfferSelectionStrategy())
+                .SetOfferReadyAction(offer => { UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer, offer); });
+            voodooSDKInstance.Init(sdkConfiguration);
+        }
 
         public void OnEvent(IEvent @event) {
             switch (@event) {
@@ -48,17 +61,15 @@ namespace ExampleGame.Code.Managers {
                     break;
                 case OnShowChainedOffer _:
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
-                    voodooSDKInstance.OfferSystem.GetChainedOffers(
-                        this,
-                        offer => {
-                            if (offer != null) {
-                                UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer, offer);
-                                Debug.Log($"[SDKManager] Showing chained offer: {offer.Id}");
-                            }
-                            else {
-                                Debug.LogWarning("[SDKManager] No eligible chained offer found.");
-                            }
-                        });
+                    voodooSDKInstance.OfferSystem.GetChainedOffers(this, offer => {
+                        if (offer != null) {
+                            UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer, offer);
+                            Debug.Log($"[SDKManager] Showing chained offer: {offer.Id}");
+                        } 
+                        else {
+                            Debug.LogWarning("[SDKManager] No eligible chained offer found.");
+                        }
+                    });
                     break;
 
                 case OnShowEndlessOffer _: {
@@ -86,6 +97,7 @@ namespace ExampleGame.Code.Managers {
                         }
                     );
                     break;
+                // this is given to multiple offers
                 case OnStageComplete _:
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
                     voodooSDKInstance.OfferSystem.GetMultipleOffers(SDKEventKeys.StageComplete,
@@ -98,6 +110,7 @@ namespace ExampleGame.Code.Managers {
                         }
                     );
                     break;
+                // this is given to single offers
                 case OnLevelComplete _:
                     voodooSDKInstance.OfferSystem.GetSingleOffer(SDKEventKeys.LevelComplete, this, offer => {
                         if (offer != null) {
@@ -142,7 +155,7 @@ namespace ExampleGame.Code.Managers {
                 return dto.offerIds.Contains(offerId);
             }
             catch (Exception ex) {
-                Debug.LogError($"[SDKManager] Failed to check HasPurchased for {offerId}: {ex}");
+                Debug.LogError($"[SDKManager][HasPurchased] Failed to check HasPurchased for {offerId}: {ex}");
                 return false;
             }
         }
@@ -178,7 +191,7 @@ namespace ExampleGame.Code.Managers {
         public void HandleBuyOffer(string offerId, Action<Offer> callback) {
             voodooSDKInstance.OfferSystem.GetOfferById(offerId, offer => {
                 if (offer == null) {
-                    Debug.LogWarning($"[SDKManager] Offer {offerId} not found.");
+                    Debug.LogWarning($"[SDKManager][HandleBuyOffer] Offer {offerId} not found.");
                     callback?.Invoke(null);
                     return;
                 }
@@ -187,14 +200,14 @@ namespace ExampleGame.Code.Managers {
                 var amount = offer.Price.Amount;
 
                 if (!GameManager.Instance.CurrencyManager.TrySpend(type, amount)) {
-                    Debug.LogWarning($"[SDKManager] Not enough currency for offer {offer.Id}");
+                    Debug.LogWarning($"[SDKManager][HandleBuyOffer] Not enough currency for offer {offer.Id}");
                     callback?.Invoke(null);
                     return;
                 }
 
                 voodooSDKInstance.OfferSystem.BuyOfferWithId(offerId, purchased => {
                     if (purchased != null) {
-                        Debug.Log($"[SDKManager] Offer purchased successfully: {purchased.Id}");
+                        Debug.Log($"[SDKManager][HandleBuyOffer] Offer purchased successfully: {purchased.Id}");
 
                         RegisterRewards(purchased.Rewards);
                         callback?.Invoke(purchased);
@@ -203,11 +216,11 @@ namespace ExampleGame.Code.Managers {
                             GetChainedOfferWrapper(
                                 nextOffer => {
                                     if (nextOffer != null) {
-                                        Debug.Log($"[SDKManager] Next chained offer: {nextOffer.Id}");
+                                        Debug.Log($"[SDKManager][HandleBuyOffer] Next chained offer: {nextOffer.Id}");
                                         UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer, nextOffer);
                                     }
                                     else {
-                                        Debug.Log("[SDKManager] No further chained offers available.");
+                                        Debug.Log("[SDKManager][HandleBuyOffer] No further chained offers available.");
                                     }
                                 }
                             );
@@ -215,16 +228,16 @@ namespace ExampleGame.Code.Managers {
                         if (purchased.Type == OfferType.Endless)
                             voodooSDKInstance.OfferSystem.GetEndlessOffer(purchased, this, nextOffer => {
                                 if (nextOffer != null) {
-                                    Debug.Log($"[Endless] Next endless offer: {nextOffer.Id}");
+                                    Debug.Log($"[SDKManager][HandleBuyOffer] Next endless offer: {nextOffer.Id}");
                                     UIManager.Instance.LoadPopUpWindow(WindowType.EndlessOffer, nextOffer);
                                 }
                                 else {
-                                    Debug.Log("[Endless] No eligible endless offer.");
+                                    Debug.Log("[SDKManager][HandleBuyOffer] No eligible endless offer.");
                                 }
                             });
                     }
                     else {
-                        Debug.LogWarning($"[SDKManager] Failed to finalize purchase of offer {offerId}");
+                        Debug.LogWarning($"[SDKManager][HandleBuyOffer] Failed to finalize purchase of offer {offerId}");
                         callback?.Invoke(null);
                     }
                 });
@@ -233,33 +246,20 @@ namespace ExampleGame.Code.Managers {
 
         private void RegisterRewards(List<OfferReward> rewards) {
             if (rewards == null || rewards.Count == 0) {
-                Debug.LogWarning("[SDKManager] No rewards to register.");
+                Debug.LogWarning("[SDKManager][RegisterRewards] No rewards to register.");
                 return;
             }
 
             foreach (var reward in rewards) {
                 var type = Converters.ToCurrencyType(reward.ItemId);
                 if (type == CurrencyType.None) {
-                    Debug.LogWarning($"[SDKManager] Unsupported reward type: {reward.ItemId}");
+                    Debug.LogWarning($"[SDKManager][RegisterRewards] Unsupported reward type: {reward.ItemId}");
                     continue;
                 }
 
                 GameManager.Instance.CurrencyManager.Add(type, reward.Amount);
-                Debug.Log($"[SDKManager] Granted {reward.Amount} {type}");
+                Debug.Log($"[SDKManager][RegisterRewards] Granted {reward.Amount} {type}");
             }
-        }
-
-        public void Init() {
-            voodooSDKInstance = VoodooSDK.Instance;
-            SubscribeToEvents();
-
-            var sdkConfiguration = new VoodooSDKConfiguration(AppKey, ServerURL)
-                .EnableLogging()
-                .SetSessionTimeout(sessionTimeout)
-                .SetGameStateProvider(this)
-                .SetOfferSelectionStrategy(new RotationOfferSelectionStrategy())
-                .SetOfferReadyAction(offer => { UIManager.Instance.LoadPopUpWindow(WindowType.SingleOffer, offer); });
-            voodooSDKInstance.Init(sdkConfiguration);
         }
 
         private void SubscribeToEvents() {
