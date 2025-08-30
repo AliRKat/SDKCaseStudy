@@ -295,8 +295,6 @@ namespace ExampleGame.Code.Managers {
             }
 
             if (_windowQueue.Count > 0)
-                //var (nextType, nextData) = _windowQueue.Dequeue();
-                // ShowWindow(nextType, nextData);
                 _windowQueue.Dequeue();
         }
 
