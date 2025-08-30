@@ -20,6 +20,7 @@ namespace ExampleGame.Code.Managers {
         private readonly string AppKey = "VoodooSDKAppKey";
         private readonly string ServerURL = "http://localhost:5000/";
         private readonly int sessionTimeout = 60; // seconds
+        private string _lastEndlessOfferId;
         private CurrencyManager currencyManager;
         private EventBus eventBus;
         private GameplayManager gameplayManager;
@@ -59,11 +60,19 @@ namespace ExampleGame.Code.Managers {
                         });
                     break;
 
-                case OnShowEndlessOffer _:
-                    UIManager.Instance.LoadPopUpWindow(WindowType.EndlessOffer);
+                case OnShowEndlessOffer _: {
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
-                    voodooSDKInstance.OfferSystem.GetEndlessOffers();
+                    voodooSDKInstance.OfferSystem.GetEndlessOffer(null, this, offer => {
+                        if (offer != null) {
+                            UIManager.Instance.LoadPopUpWindow(WindowType.EndlessOffer, offer);
+                            Debug.Log($"[SDKManager] Showing endless offer: {offer.Id}");
+                        }
+                        else {
+                            Debug.LogWarning("[SDKManager] No eligible endless offer found.");
+                        }
+                    });
                     break;
+                }
                 case OnShowMultipleOffer _:
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
                     voodooSDKInstance.OfferSystem.GetMultipleOffersManual(
@@ -161,6 +170,10 @@ namespace ExampleGame.Code.Managers {
             voodooSDKInstance.OfferSystem.GetChainedOffers(this, callback);
         }
 
+        public void GetEndlessOfferWrapper(Offer current, Action<Offer> callback) {
+            voodooSDKInstance.OfferSystem.GetEndlessOffer(current, this, callback);
+        }
+
         public void HandleBuyOffer(string offerId, Action<Offer> callback) {
             voodooSDKInstance.OfferSystem.GetOfferById(offerId, offer => {
                 if (offer == null) {
@@ -186,8 +199,7 @@ namespace ExampleGame.Code.Managers {
                         callback?.Invoke(purchased);
 
                         if (purchased.Type == OfferType.Chained)
-                            voodooSDKInstance.OfferSystem.GetChainedOffers(
-                                this,
+                            GetChainedOfferWrapper(
                                 nextOffer => {
                                     if (nextOffer != null) {
                                         Debug.Log($"[SDKManager] Next chained offer: {nextOffer.Id}");
@@ -198,6 +210,17 @@ namespace ExampleGame.Code.Managers {
                                     }
                                 }
                             );
+
+                        if (purchased.Type == OfferType.Endless)
+                            voodooSDKInstance.OfferSystem.GetEndlessOffer(purchased, this, nextOffer => {
+                                if (nextOffer != null) {
+                                    Debug.Log($"[Endless] Next endless offer: {nextOffer.Id}");
+                                    UIManager.Instance.LoadPopUpWindow(WindowType.EndlessOffer, nextOffer);
+                                }
+                                else {
+                                    Debug.Log("[Endless] No eligible endless offer.");
+                                }
+                            });
                     }
                     else {
                         Debug.LogWarning($"[SDKManager] Failed to finalize purchase of offer {offerId}");

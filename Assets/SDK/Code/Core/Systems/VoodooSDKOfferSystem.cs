@@ -156,8 +156,45 @@ namespace SDK.Code.Core.Systems {
             });
         }
 
-        public List<Offer> GetEndlessOffers() {
-            return null;
+        public void GetEndlessOffer(Offer current, IGameStateProvider state, Action<Offer> callback) {
+            if (!EnsureSDKInitialized()) {
+                callback?.Invoke(null);
+                return;
+            }
+
+            var userSegments = state.GetUserSegmentation();
+
+            RequestOffers(OfferType.Endless, userSegments, offers => {
+                var eligible = GetEligibleOffers(SDKEventKeys.ManualShow, state)
+                    .Where(o => o.Type == OfferType.Endless)
+                    .ToList();
+
+                if (current != null && !string.IsNullOrEmpty(current.NextOfferId)) {
+                    GetOfferById(current.NextOfferId, next => {
+                        if (next != null) {
+                            Log.Info($"[OfferSystem][Endless] Next offer: {next.Id}");
+                            callback?.Invoke(next);
+                        }
+                        else {
+                            Log.Warning(
+                                $"[OfferSystem][Endless] Next offerId {current.NextOfferId} not found, falling back to first.");
+                            var first = offers.FirstOrDefault(o =>
+                                o.Type == OfferType.Endless && string.IsNullOrEmpty(o.PreviousOfferId));
+                            callback?.Invoke(first);
+                        }
+                    });
+                }
+                else {
+                    var first = offers.FirstOrDefault(o =>
+                        o.Type == OfferType.Endless && string.IsNullOrEmpty(o.PreviousOfferId));
+                    if (first != null)
+                        Log.Info($"[OfferSystem][Endless] Restarting cycle with {first.Id}");
+                    else
+                        Log.Warning("[OfferSystem][Endless] No endless offers found at all.");
+
+                    callback?.Invoke(first);
+                }
+            });
         }
 
         public void GetMultipleOffersManual(

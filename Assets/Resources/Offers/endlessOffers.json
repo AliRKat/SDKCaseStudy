@@ -1,0 +1,168 @@
+{
+  "offers": [
+    {
+      "id": "endless_usd_offer",
+      "type": "Endless",
+      "trigger": "MANUAL_SHOW",
+      "price": {
+        "currency": "USD",
+        "amount": 2
+      },
+      "rewards": [
+        {
+          "itemId": "Gems",
+          "amount": 10
+        }
+      ],
+      "nextOfferId": "endless_eur_offer",
+      "variants": [
+        {
+          "segments": [
+            {
+              "key": "geo",
+              "value": "EU"
+            }
+          ],
+          "price": {
+            "currency": "EUR",
+            "amount": 2
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 12
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "key": "geo",
+              "value": "US"
+            }
+          ],
+          "price": {
+            "currency": "USD",
+            "amount": 2
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endless_eur_offer",
+      "type": "Endless",
+      "trigger": "MANUAL_SHOW",
+      "price": {
+        "currency": "EUR",
+        "amount": 2
+      },
+      "rewards": [
+        {
+          "itemId": "Tokens",
+          "amount": 5
+        }
+      ],
+      "previousId": "endless_usd_offer",
+      "nextOfferId": "endless_bundle_offer",
+      "variants": [
+        {
+          "segments": [
+            {
+              "key": "geo",
+              "value": "EU"
+            }
+          ],
+          "price": {
+            "currency": "EUR",
+            "amount": 2
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 6
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "key": "geo",
+              "value": "US"
+            }
+          ],
+          "price": {
+            "currency": "USD",
+            "amount": 2
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endless_bundle_offer",
+      "type": "Endless",
+      "trigger": "MANUAL_SHOW",
+      "price": {
+        "currency": "USD",
+        "amount": 3
+      },
+      "rewards": [
+        {
+          "itemId": "Coins",
+          "amount": 500
+        }
+      ],
+      "previousId": "endless_eur_offer",
+      "nextOfferId": "endless_usd_offer",
+      "variants": [
+        {
+          "segments": [
+            {
+              "key": "geo",
+              "value": "EU"
+            }
+          ],
+          "price": {
+            "currency": "EUR",
+            "amount": 3
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 600
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "key": "geo",
+              "value": "US"
+            }
+          ],
+          "price": {
+            "currency": "USD",
+            "amount": 3
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 650
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

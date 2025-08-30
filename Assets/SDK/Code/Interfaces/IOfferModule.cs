@@ -27,7 +27,7 @@ namespace SDK.Code.Interfaces {
             Action<Offer> callback,
             Dictionary<string, string> userSegments = null);
 
-        public List<Offer> GetEndlessOffers();
+        public void GetEndlessOffer(Offer current, IGameStateProvider state, Action<Offer> callback);
         public void BuyOfferWithId(string offerId, Action<Offer> callback);
 
         public void GetOfferById(string offerId, Action<Offer> callback,

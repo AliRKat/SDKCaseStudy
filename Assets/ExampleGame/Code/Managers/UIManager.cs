@@ -124,26 +124,38 @@ namespace ExampleGame.Code.Managers {
                     break;
 
                 case GameAction.BuyOffer:
+                    var sdkManager = GameManager.Instance.SDKManager;
                     switch (data) {
-                        // --- Single / Chained ---
+                        // --- Single / --- Chained --- / Endless ---
                         case SingleOfferWindowController singleWindow: {
                             var initData = singleWindow.GetInitData<SingleOfferWindowInitData>();
                             if (initData != null)
-                                GameManager.Instance.SDKManager.HandleBuyOffer(initData.offerId, offer => {
+                                sdkManager.HandleBuyOffer(initData.offerId, offer => {
                                     if (offer != null) {
                                         Debug.Log($"Player bought {offer.Id}, Rewards: {offer.GetRewardsString()}");
 
-                                        var hasNext = !string.IsNullOrEmpty(offer.NextOfferId);
+                                        var isChained = offer.Type == OfferType.Chained;
+                                        var isEndless = offer.Type == OfferType.Endless;
 
                                         singleWindow.Close();
 
-                                        if (hasNext) {
+                                        if (isChained && !string.IsNullOrEmpty(offer.NextOfferId)) {
                                             Debug.Log($"[Chained] Next offer in chain: {offer.NextOfferId}");
-                                            GameManager.Instance.SDKManager.GetChainedOfferWrapper(next => {
+                                            sdkManager.GetChainedOfferWrapper(next => {
                                                 if (next != null)
-                                                    LoadPopUpWindow(WindowType.SingleOffer, next);
+                                                    LoadPopUpWindow(WindowType.ChainedOffer, next);
                                                 else
                                                     Debug.Log("[Chained] No further chained offer found.");
+                                            });
+                                        }
+                                        else if (isEndless) {
+                                            Debug.Log(
+                                                $"[Endless] Player purchased {offer.Id}, cycling to next offer...");
+                                            sdkManager.GetEndlessOfferWrapper(offer, next => {
+                                                if (next != null)
+                                                    LoadPopUpWindow(WindowType.EndlessOffer, next);
+                                                else
+                                                    Debug.Log("[Endless] No eligible endless offer found.");
                                             });
                                         }
                                     }
@@ -156,7 +168,7 @@ namespace ExampleGame.Code.Managers {
                         }
 
                         case SingleOfferWindowInitData subOfferData: {
-                            GameManager.Instance.SDKManager.HandleBuyOffer(subOfferData.offerId, offer => {
+                            sdkManager.HandleBuyOffer(subOfferData.offerId, offer => {
                                 if (offer != null)
                                     Debug.Log($"Player bought {offer.Id}, Rewards: {offer.GetRewardsString()}");
                                 else
@@ -184,6 +196,7 @@ namespace ExampleGame.Code.Managers {
             switch (windowType) {
                 case WindowType.SingleOffer:
                 case WindowType.ChainedOffer:
+                case WindowType.EndlessOffer:
                     if (data is Offer offer) {
                         var windowInitData = new SingleOfferWindowInitData {
                             offerId = offer.Id,
