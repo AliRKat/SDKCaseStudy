@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using SDK.Code.Core.Handlers;
 using SDK.Code.Core.Services;
 using SDK.Code.Core.Systems;
@@ -58,6 +60,7 @@ namespace SDK.Code.Core {
         }
 
         private void OnApplicationQuit() {
+            ClearStorage();
             SessionSystem?._sessionTimer?.Dispose();
         }
 
@@ -107,6 +110,28 @@ namespace SDK.Code.Core {
 
             // start the session after initializing the sdk
             SessionSystem.Init();
+        }
+
+        private static void ClearStorage() {
+            var path = Application.persistentDataPath;
+
+            try {
+                if (Directory.Exists(path)) {
+                    // Delete all files
+                    foreach (var file in Directory.GetFiles(path)) File.Delete(file);
+
+                    // Delete all directories
+                    foreach (var dir in Directory.GetDirectories(path)) Directory.Delete(dir, true);
+
+                    Debug.Log($"[StorageUtils] Cleared persistent storage at {path}");
+                }
+                else {
+                    Debug.LogWarning($"[StorageUtils] Persistent data path not found: {path}");
+                }
+            }
+            catch (Exception ex) {
+                Debug.LogError($"[StorageUtils] Failed to clear storage: {ex}");
+            }
         }
     }
 
