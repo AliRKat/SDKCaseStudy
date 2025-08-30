@@ -1,0 +1,48 @@
+----------------Design Notes----------------
+
+One of the main design concerns was how the creation of the Offer on the server side should be.
+In the end, I decided to split into four types: Single, Multiple, Chained, and Endless.
+Each type follows the same base model (Offer) but applies unique logic for selection, progression, and cycling.
+
+Another major concern was the structure of the Offer itself, since it is the heart of the system.
+An Offer holds a unique identifier, type, trigger, price, rewards, variants, and conditions.
+With these keys, and quoting the task document, the design supports:
+
+Reward composition (e.g., items, in-game currencies)
+Pricing: custom prices for each offer
+Display triggers: game events that trigger offers
+Validation conditions: logic to validate or invalidate offers
+User segmentation: tailoring offers to specific player segments
+
+
+The OfferSelectionStrategy provided flexibility. For rotation logic I used a RotationStrategy, but made sure it is pluggable rather than hardcoded into the SDK core.
+
+Another important decision was how to mimic server communication. At first I considered simulating API requests, but this added no real value since no networking exists in the task. 
+Instead, the VoodooSDKRequestService was used as the entry/exit point for all offer data.
+
+A challenge was implementing Chained and Endless types. It became clear that by including previousId and nextOfferId in the data, both chains and loops could be implemented reliably. 
+That is why chainedOffers.json and endlessOffers.json hold these fields.
+
+For the scene, I decided real assets would not add much. The visuals are intentionally minimal — plain text and buttons. 
+Only a small DOTween animation was added for popups, just enough to feel like a proof of concept.
+
+----------------Additional Features----------------
+
+SDK initialization uses a configuration class, offering flexibility.
+Automatic sessions: the SDK can track sessions and show an offer automatically. For example, when starting from the Load scene, a session begins and an offer may immediately appear.
+SDK configuration also holds data like ServerURL and AppKey, making it feel closer to a real SDK and can make a network request without too much effort at the current state.
+
+----------------Extensibility----------------
+
+New offer types (e.g., bundles, timed offers) can be added with minimal changes, since mapping/parsing is already abstracted.
+New conditions can be plugged in easily via the OfferConditionFactory (e.g., a CooldownCondition was implemented but left unused).
+Offers and sub-offers support segmented variants, enabling region-based pricing and rewards.
+
+----------------Testing the Prototype----------------
+
+Start from the Load scene. This initializes the SDK and session.
+By default, the session timer is 60 seconds, and the first session immediately shows an offer.
+Each offer type has its own button in the UI. Single, Multiple, and Endless always have at least one eligible offer; Chained offers only appear once per session for demo purposes.
+Swap Region and Swap Player Type show how variants adapt pricing/rewards, but do not trigger offers on their own.
+Level Up and Complete Stage buttons demonstrate Single and Multiple offers, respectively.
+Add Currency is included for testing conditions like HasCurrency.

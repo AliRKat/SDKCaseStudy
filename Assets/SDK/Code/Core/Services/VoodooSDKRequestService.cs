@@ -36,23 +36,6 @@ namespace SDK.Code.Core.Services {
         ///     - If the cache is uninitialized, corrupted, or the JSON is invalid, an empty list is provided.
         ///     - If mapping a specific offer fails, it is skipped and logged, but other offers are still returned.
         /// </param>
-        /// <remarks>
-        ///     <para>
-        ///         In a production environment, this method would normally send a request to the server
-        ///         and process the response.
-        ///         However, since the system is running with mock data, it instead loads a local JSON file
-        ///         from <c>Resources</c> and parses it into offers.
-        ///     </para>
-        ///     <para>
-        ///         This method ensures all Unity API calls (<c>Resources.Load</c>, <c>JsonUtility.FromJson</c>)
-        ///         are executed safely on the Unity main thread via <see cref="VoodooSDKMainThreadDispatcher" />.
-        ///     </para>
-        ///     <para>
-        ///         The method is fail-safe: exceptions at every stage (cache, JSON parse, offer mapping)
-        ///         are caught, logged, and result in <paramref name="onResponse" /> being invoked with a valid list
-        ///         (possibly empty), so that UI or business logic never blocks.
-        ///     </para>
-        /// </remarks>
         public void GetOffers(string resourceKey, Dictionary<string, string> userSegments,
             Action<List<Offer>> onResponse) {
             VoodooSDKMainThreadDispatcher.Enqueue(() => {
@@ -158,23 +141,6 @@ namespace SDK.Code.Core.Services {
         ///         </item>
         ///     </list>
         /// </param>
-        /// <remarks>
-        ///     <para>
-        ///         In a production environment, this method would normally trigger a server-side request
-        ///         to validate and record the purchase. Since this SDK operates with mock/local data,
-        ///         it instead writes the purchase state to a <c>boughtOffers.json</c> file under
-        ///         <see cref="Application.persistentDataPath" />.
-        ///     </para>
-        ///     <para>
-        ///         If the file does not exist, it is created with a new <see cref="BoughtOffersDTO" /> structure.
-        ///         If the offer has already been purchased, the callback still succeeds with <c>true</c>,
-        ///         and a debug log is emitted.
-        ///     </para>
-        ///     <para>
-        ///         This method ensures Unity API calls (such as <see cref="Application.persistentDataPath" />)
-        ///         are executed on the Unity main thread via <see cref="VoodooSDKMainThreadDispatcher" />.
-        ///     </para>
-        /// </remarks>
         public void MarkOfferAsPurchased(Offer offer, Action<bool> onComplete) {
             VoodooSDKMainThreadDispatcher.Enqueue(() => {
                 try {
