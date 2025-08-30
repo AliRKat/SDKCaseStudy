@@ -55,6 +55,15 @@ namespace ExampleGame.Code.Managers {
                     break;
                 case OnShowMultipleOffer _:
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
+                    voodooSDKInstance.OfferSystem.GetMultipleOffersManual(
+                        this,
+                        selected => {
+                            if (selected != null)
+                                UIManager.Instance.LoadPopUpWindow(WindowType.MultipleOffer, selected);
+                            else
+                                Debug.LogWarning("[SDKManager] No eligible multiple offers to show");
+                        }
+                    );
                     break;
                 case OnStageComplete _:
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");

@@ -11,6 +11,11 @@ namespace SDK.Code.Interfaces {
         public void GetSingleOffer(string trigger, IGameStateProvider state, Action<Offer> callback,
             Dictionary<string, string> userSegments = null);
 
+        public void GetMultipleOffersManual(
+            IGameStateProvider state,
+            Action<MultipleOffer> callback,
+            Dictionary<string, string> userSegments = null);
+
         public void GetMultipleOffers(
             string trigger,
             IGameStateProvider state,

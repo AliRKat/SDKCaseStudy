@@ -1,5 +1,6 @@
 using System;
 using Code.UI.Buttons;
+using ExampleGame.Code.Enums;
 using UnityEngine;
 
 namespace ExampleGame.Code.UI {
@@ -17,6 +18,8 @@ namespace ExampleGame.Code.UI {
                     var offerRepresentation = Instantiate(offerRepresentationPrefab, offerListContainer);
                     offerRepresentation.Init(offer);
                 }
+
+            closeButton.RegisterClick(GameAction.CloseWindow, this);
         }
 
         public void Close() {

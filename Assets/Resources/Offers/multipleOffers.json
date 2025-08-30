@@ -1,7 +1,7 @@
 {
   "multipleOffers": [
     {
-      "id": "multi_stage_5_pack",
+      "id": "multi_stage_1_starter",
       "trigger": "STAGE_COMPLETE",
       "conditions": [
         {
@@ -11,28 +11,507 @@
       ],
       "offers": [
         {
-          "id": "coins_option",
+          "id": "coins_option_stage1",
+          "price": {
+            "currency": "Coins",
+            "amount": 200
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 20
+            }
+          ]
+        },
+        {
+          "id": "free_option_stage1",
+          "price": {
+            "currency": "Free",
+            "amount": 0
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_stage_3_choice",
+      "trigger": "STAGE_COMPLETE",
+      "conditions": [
+        {
+          "type": "StageCompleted",
+          "value": "3"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_stage3",
+          "price": {
+            "currency": "Coins",
+            "amount": 500
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 1200
+            }
+          ]
+        },
+        {
+          "id": "usd_option_stage3",
+          "price": {
+            "currency": "USD",
+            "amount": 3
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_stage_5_pack",
+      "trigger": "STAGE_COMPLETE",
+      "conditions": [
+        {
+          "type": "StageCompleted",
+          "value": "5"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_stage5",
+          "price": {
+            "currency": "Coins",
+            "amount": 800
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 15
+            }
+          ]
+        },
+        {
+          "id": "eur_option_stage5",
+          "price": {
+            "currency": "EUR",
+            "amount": 4
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_stage_7_bundle",
+      "trigger": "STAGE_COMPLETE",
+      "conditions": [
+        {
+          "type": "StageCompleted",
+          "value": "7"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_stage7",
+          "price": {
+            "currency": "Coins",
+            "amount": 1000
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 2500
+            }
+          ]
+        },
+        {
+          "id": "usd_option_stage7",
+          "price": {
+            "currency": "USD",
+            "amount": 5
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_level_2_choice",
+      "trigger": "LEVEL_COMPLETE",
+      "conditions": [
+        {
+          "type": "LevelAtLeast",
+          "value": "2"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_level2",
+          "price": {
+            "currency": "Coins",
+            "amount": 400
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 15
+            }
+          ]
+        },
+        {
+          "id": "free_option_level2",
+          "price": {
+            "currency": "Free",
+            "amount": 0
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_level_4_pack",
+      "trigger": "LEVEL_COMPLETE",
+      "conditions": [
+        {
+          "type": "LevelAtLeast",
+          "value": "4"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_level4",
+          "price": {
+            "currency": "Coins",
+            "amount": 700
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 1500
+            }
+          ]
+        },
+        {
+          "id": "eur_option_level4",
+          "price": {
+            "currency": "EUR",
+            "amount": 3
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_level_6_special",
+      "trigger": "LEVEL_COMPLETE",
+      "conditions": [
+        {
+          "type": "LevelAtLeast",
+          "value": "6"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_level6",
+          "price": {
+            "currency": "Coins",
+            "amount": 900
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 20
+            }
+          ]
+        },
+        {
+          "id": "usd_option_level6",
+          "price": {
+            "currency": "USD",
+            "amount": 6
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 80
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_session_start_boost",
+      "trigger": "SESSION_START",
+      "conditions": [],
+      "offers": [
+        {
+          "id": "free_option_sessionstart",
+          "price": {
+            "currency": "Free",
+            "amount": 0
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 300
+            }
+          ]
+        },
+        {
+          "id": "coins_option_sessionstart",
+          "price": {
+            "currency": "Coins",
+            "amount": 500
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_session_update_bonus",
+      "trigger": "SESSION_UPDATE",
+      "conditions": [],
+      "offers": [
+        {
+          "id": "coins_option_sessionupdate",
+          "price": {
+            "currency": "Coins",
+            "amount": 200
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 8
+            }
+          ]
+        },
+        {
+          "id": "usd_option_sessionupdate",
+          "price": {
+            "currency": "USD",
+            "amount": 2
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_stage_10_legendary",
+      "trigger": "STAGE_COMPLETE",
+      "conditions": [
+        {
+          "type": "StageCompleted",
+          "value": "10"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_stage10",
+          "price": {
+            "currency": "Coins",
+            "amount": 1500
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 100
+            }
+          ]
+        },
+        {
+          "id": "eur_option_stage10",
+          "price": {
+            "currency": "EUR",
+            "amount": 8
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_level_8_choice",
+      "trigger": "LEVEL_COMPLETE",
+      "conditions": [
+        {
+          "type": "LevelAtLeast",
+          "value": "8"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_level8",
+          "price": {
+            "currency": "Coins",
+            "amount": 1100
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 2500
+            }
+          ]
+        },
+        {
+          "id": "usd_option_level8",
+          "price": {
+            "currency": "USD",
+            "amount": 5
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 70
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_level_10_epic",
+      "trigger": "LEVEL_COMPLETE",
+      "conditions": [
+        {
+          "type": "LevelAtLeast",
+          "value": "10"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_level10",
+          "price": {
+            "currency": "Coins",
+            "amount": 2000
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 50
+            }
+          ]
+        },
+        {
+          "id": "eur_option_level10",
+          "price": {
+            "currency": "EUR",
+            "amount": 10
+          },
+          "rewards": [
+            {
+              "itemId": "Gems",
+              "amount": 120
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_session_free_daily",
+      "trigger": "SESSION_UPDATE",
+      "conditions": [],
+      "offers": [
+        {
+          "id": "free_option_daily",
+          "price": {
+            "currency": "Free",
+            "amount": 0
+          },
+          "rewards": [
+            {
+              "itemId": "Coins",
+              "amount": 200
+            }
+          ]
+        },
+        {
+          "id": "coins_option_daily",
           "price": {
             "currency": "Coins",
             "amount": 300
           },
           "rewards": [
             {
-              "itemId": "Coins",
-              "amount": 600
+              "itemId": "Gems",
+              "amount": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi_stage_12_ultra",
+      "trigger": "STAGE_COMPLETE",
+      "conditions": [
+        {
+          "type": "StageCompleted",
+          "value": "12"
+        }
+      ],
+      "offers": [
+        {
+          "id": "coins_option_stage12",
+          "price": {
+            "currency": "Coins",
+            "amount": 1800
+          },
+          "rewards": [
+            {
+              "itemId": "Tokens",
+              "amount": 60
             }
           ]
         },
         {
-          "id": "gems_option",
+          "id": "usd_option_stage12",
           "price": {
             "currency": "USD",
-            "amount": 4
+            "amount": 9
           },
           "rewards": [
             {
               "itemId": "Gems",
-              "amount": 40
+              "amount": 140
             }
           ]
         }

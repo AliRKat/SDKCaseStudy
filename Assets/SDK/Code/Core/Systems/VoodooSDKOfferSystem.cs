@@ -120,6 +120,31 @@ namespace SDK.Code.Core.Systems {
             return null;
         }
 
+        public void GetMultipleOffersManual(
+            IGameStateProvider state,
+            Action<MultipleOffer> callback,
+            Dictionary<string, string> userSegments = null) {
+            if (!EnsureSDKInitialized()) return;
+
+            userSegments ??= state.GetUserSegmentation();
+
+            voodooSDKRequestService.GetMultipleOffers(userSegments, offers => {
+                var eligible = offers
+                    .Where(o => o.IsEligible(state))
+                    .ToList();
+
+                var selected = _multipleOfferSelectionStrategy.Select(eligible);
+
+                Log.Info(selected != null
+                    ? $"[OfferSystem] Selected Manual MultipleOffer: {selected.Id}"
+                    : "[OfferSystem] No eligible manual multiple offers");
+
+                _multipleOffers = offers;
+                BuildIndexes(_offers, _multipleOffers);
+                callback?.Invoke(selected);
+            });
+        }
+
         public void GetMultipleOffers(
             string trigger,
             IGameStateProvider state,
