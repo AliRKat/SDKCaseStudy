@@ -136,8 +136,8 @@
         {
           "segments": [
             {
-              "key": "geo",
-              "value": "US"
+              "key": "playerType",
+              "value": "PREMIUM"
             }
           ],
           "price": {

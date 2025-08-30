@@ -1,5 +1,5 @@
-using Code.Core;
 using Core;
+using ExampleGame.Code.Core;
 using ExampleGame.Code.Events;
 using UnityEngine;
 
@@ -7,9 +7,9 @@ namespace ExampleGame.Code.Managers {
 
     public class GameplayManager : IBaseEventReceiver {
         private int _completedStages;
-        private int _playerLevel;
-        private string _currentRegion = "EU";
         private string _currentPlayerType = "FREE";
+        private string _currentRegion = "EU";
+        private int _playerLevel;
 
         public void OnEvent(IEvent @event) {
         }
@@ -41,9 +41,9 @@ namespace ExampleGame.Code.Managers {
             GameManager.Instance.EventBus.Raise(new OnStageComplete());
             Debug.Log($"[GameplayManager][CompleteStage] Stage completed! Total completed = {_completedStages}");
         }
-        
+
         /// <summary>
-        /// Toggles the current region between "EU" and "US".
+        ///     Toggles the current region between "EU" and "US".
         /// </summary>
         public void SwapRegion() {
             _currentRegion = _currentRegion == "EU" ? "US" : "EU";
@@ -51,23 +51,26 @@ namespace ExampleGame.Code.Managers {
         }
 
         /// <summary>
-        /// Gets the current region (e.g., "EU" or "US").
+        ///     Gets the current region (e.g., "EU" or "US").
         /// </summary>
-        public string GetRegion() => _currentRegion;
+        public string GetRegion() {
+            return _currentRegion;
+        }
 
         /// <summary>
-        /// Toggles the player type between "FREE" and "PREMIUM".
+        ///     Toggles the player type between "FREE" and "PREMIUM".
         /// </summary>
-        public void SwapPlayerType()
-        {
+        public void SwapPlayerType() {
             _currentPlayerType = _currentPlayerType == "FREE" ? "PREMIUM" : "FREE";
             Debug.Log($"[GameplayManager][SwapPlayerType] Player type swapped to: {_currentPlayerType}");
         }
 
         /// <summary>
-        /// Gets the current player type (e.g., "FREE" or "PREMIUM").
+        ///     Gets the current player type (e.g., "FREE" or "PREMIUM").
         /// </summary>
-        public string GetPlayerType() => _currentPlayerType;
+        public string GetPlayerType() {
+            return _currentPlayerType;
+        }
     }
 
 }

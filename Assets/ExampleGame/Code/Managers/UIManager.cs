@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Code.Core;
 using Code.Events;
 using Core;
+using ExampleGame.Code.Core;
 using ExampleGame.Code.Enums;
 using ExampleGame.Code.Events;
 using ExampleGame.Code.UI;

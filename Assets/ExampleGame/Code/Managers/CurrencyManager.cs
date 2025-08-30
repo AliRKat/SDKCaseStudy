@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Code.Core;
 using Core;
+using ExampleGame.Code.Core;
 using ExampleGame.Code.Enums;
 using ExampleGame.Code.Events;
 using UnityEngine;
@@ -13,8 +13,6 @@ namespace ExampleGame.Code.Managers {
 
         public void OnEvent(IEvent @event) {
         }
-
-        public event Action<CurrencyType, int, int> CurrencyChanged;
 
         public void Init() {
         }
@@ -29,18 +27,18 @@ namespace ExampleGame.Code.Managers {
             ChangeBalance(type, Get(type) + amount);
         }
 
-        public bool HasEnough(CurrencyType type, int amount) {
+        private bool HasEnough(CurrencyType type, int amount) {
             return Get(type) >= amount;
         }
 
         public bool TrySpend(CurrencyType type, int amount) {
             if (type == CurrencyType.Free) {
-                Debug.Log("[CurrencyManager] Free offer, no spending required.");
+                Debug.Log("[CurrencyManager][TrySpend] Free offer, no spending required.");
                 return true;
             }
 
             if (type == CurrencyType.USD || type == CurrencyType.EUR) {
-                Debug.Log($"[CurrencyManager] Real money offer detected ({amount} {type}). " +
+                Debug.Log($"[CurrencyManager][TrySpend] Real money offer detected ({amount} {type}). " +
                           "Not processed in mock environment.");
                 return true;
             }
@@ -60,7 +58,6 @@ namespace ExampleGame.Code.Managers {
         private void ChangeBalance(CurrencyType type, int newValue) {
             var prev = Get(type);
             _balances[type] = Mathf.Max(0, newValue);
-            CurrencyChanged?.Invoke(type, prev, _balances[type]);
             GameManager.Instance.EventBus.Raise(new OnCurrencyChanged(type, prev, _balances[type]));
         }
     }

@@ -1,8 +1,9 @@
+using Code.Core;
 using ExampleGame.Code.Enums;
 using ExampleGame.Code.Managers;
 using UnityEngine;
 
-namespace Code.Core {
+namespace ExampleGame.Code.Core {
 
     public class GameManager : MonoBehaviour {
         public static GameManager Instance;
