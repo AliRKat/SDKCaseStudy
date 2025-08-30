@@ -14,6 +14,7 @@ namespace SDK.Code.Models {
             Dictionary<string, string> targetSegments,
             OfferPrice price,
             List<OfferReward> rewards,
+            string previousOfferId,
             string nextOfferId,
             List<IOfferCondition> conditions) {
             Id = id;
@@ -22,6 +23,7 @@ namespace SDK.Code.Models {
             TargetSegments = targetSegments ?? new Dictionary<string, string>();
             Price = price;
             Rewards = rewards ?? new List<OfferReward>();
+            PreviousOfferId = previousOfferId;
             NextOfferId = nextOfferId;
             Conditions = conditions ?? new List<IOfferCondition>();
         }
@@ -32,7 +34,9 @@ namespace SDK.Code.Models {
         public Dictionary<string, string> TargetSegments { get; private set; }
         public OfferPrice Price { get; }
         public List<OfferReward> Rewards { get; }
+        public string PreviousOfferId { get; }
         public string NextOfferId { get; }
+
         public List<IOfferCondition> Conditions { get; }
 
         /// <summary>
@@ -57,7 +61,7 @@ namespace SDK.Code.Models {
                 : "No Conditions";
 
             return
-                $"[Offer] Id={Id}, Type={Type}, Trigger={Trigger}, Price={Price.Amount} {Price.Currency}, Rewards=({rewardsStr}), NextOffer={NextOfferId}, Conditions=({conditionsStr})";
+                $"[Offer] Id={Id}, Type={Type}, Trigger={Trigger}, Price={Price.Amount} {Price.Currency}, Rewards=({rewardsStr}), PreviousOffer={PreviousOfferId}, NextOffer={NextOfferId}, Conditions=({conditionsStr})";
         }
 
         public string GetRewardsString() {

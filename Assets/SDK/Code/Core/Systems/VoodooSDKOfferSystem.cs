@@ -112,8 +112,48 @@ namespace SDK.Code.Core.Systems {
             });
         }
 
-        public List<Offer> GetChainedOffers() {
-            return null;
+        public void GetChainedOffers(
+            IGameStateProvider state,
+            Action<Offer> callback,
+            Dictionary<string, string> userSegments = null) {
+            if (!EnsureSDKInitialized()) {
+                callback?.Invoke(null);
+                return;
+            }
+
+            userSegments ??= state.GetUserSegmentation();
+
+            RequestOffers(OfferType.Chained, userSegments, offers => {
+                var chained = offers.Where(o => o.Type == OfferType.Chained).ToList();
+                var lookup = chained.ToDictionary(o => o.Id, o => o);
+
+                Offer nextOffer = null;
+
+                foreach (var offer in chained)
+                    if (string.IsNullOrEmpty(offer.PreviousOfferId)) {
+                        var current = offer;
+
+                        while (current != null && state.HasPurchased(current.Id)) {
+                            Log.Debug(
+                                $"[Chained] Checking offer {current.Id}, Next={current.NextOfferId}, Purchased={state.HasPurchased(current.Id)}");
+
+                            current = string.IsNullOrEmpty(current.NextOfferId)
+                                ? null
+                                : lookup.GetValueOrDefault(current.NextOfferId);
+                        }
+
+                        if (current != null && current.Validate(state)) {
+                            nextOffer = current;
+                            break;
+                        }
+                    }
+
+                Log.Info(nextOffer != null
+                    ? $"[OfferSystem] Selected Chained Offer: {nextOffer.Id}"
+                    : "[OfferSystem] No eligible chained offer found");
+
+                callback?.Invoke(nextOffer);
+            });
         }
 
         public List<Offer> GetEndlessOffers() {

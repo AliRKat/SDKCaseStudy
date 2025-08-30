@@ -22,7 +22,11 @@ namespace SDK.Code.Interfaces {
             Action<MultipleOffer> callback,
             Dictionary<string, string> userSegments = null);
 
-        public List<Offer> GetChainedOffers();
+        public void GetChainedOffers(
+            IGameStateProvider state,
+            Action<Offer> callback,
+            Dictionary<string, string> userSegments = null);
+
         public List<Offer> GetEndlessOffers();
         public void BuyOfferWithId(string offerId, Action<Offer> callback);
 

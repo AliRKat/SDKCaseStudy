@@ -53,6 +53,7 @@ namespace SDK.Code.Utils {
                 ToDict(dto.targetSegments),
                 price,
                 rewards,
+                dto.previousId,
                 dto.nextOfferId,
                 conditions
             );

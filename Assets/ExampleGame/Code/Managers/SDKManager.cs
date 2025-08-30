@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Code.Core;
 using Code.Events;
 using Core;
@@ -44,10 +45,20 @@ namespace ExampleGame.Code.Managers {
                     });
                     break;
                 case OnShowChainedOffer _:
-                    UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer);
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
-                    voodooSDKInstance.OfferSystem.GetChainedOffers();
+                    voodooSDKInstance.OfferSystem.GetChainedOffers(
+                        this,
+                        offer => {
+                            if (offer != null) {
+                                UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer, offer);
+                                Debug.Log($"[SDKManager] Showing chained offer: {offer.Id}");
+                            }
+                            else {
+                                Debug.LogWarning("[SDKManager] No eligible chained offer found.");
+                            }
+                        });
                     break;
+
                 case OnShowEndlessOffer _:
                     UIManager.Instance.LoadPopUpWindow(WindowType.EndlessOffer);
                     Debug.Log($"[SDKManager][OnEvent] Listened {@event}");
@@ -107,7 +118,23 @@ namespace ExampleGame.Code.Managers {
         }
 
         public bool HasPurchased(string offerId) {
-            throw new NotImplementedException();
+            try {
+                var path = Path.Combine(Application.persistentDataPath, "boughtOffers.json");
+                if (!File.Exists(path))
+                    return false;
+
+                var json = File.ReadAllText(path);
+                var dto = JsonUtility.FromJson<BoughtOffersDTO>(json);
+
+                if (dto == null || dto.offerIds == null)
+                    return false;
+
+                return dto.offerIds.Contains(offerId);
+            }
+            catch (Exception ex) {
+                Debug.LogError($"[SDKManager] Failed to check HasPurchased for {offerId}: {ex}");
+                return false;
+            }
         }
 
         public DateTime GetLastShown(string offerId) {
@@ -130,10 +157,14 @@ namespace ExampleGame.Code.Managers {
             return userSegments;
         }
 
+        public void GetChainedOfferWrapper(Action<Offer> callback) {
+            voodooSDKInstance.OfferSystem.GetChainedOffers(this, callback);
+        }
+
         public void HandleBuyOffer(string offerId, Action<Offer> callback) {
             voodooSDKInstance.OfferSystem.GetOfferById(offerId, offer => {
                 if (offer == null) {
-                    Debug.LogWarning($"[SDKManager] Offer not found: {offerId}");
+                    Debug.LogWarning($"[SDKManager] Offer {offerId} not found.");
                     callback?.Invoke(null);
                     return;
                 }
@@ -147,11 +178,26 @@ namespace ExampleGame.Code.Managers {
                     return;
                 }
 
-                voodooSDKInstance.OfferSystem.BuyOfferWithId(offerId, purchasedOffer => {
-                    if (purchasedOffer != null) {
-                        Debug.Log($"[SDKManager] Offer purchased successfully: {purchasedOffer.Id}");
-                        RegisterRewards(purchasedOffer.Rewards);
-                        callback?.Invoke(purchasedOffer);
+                voodooSDKInstance.OfferSystem.BuyOfferWithId(offerId, purchased => {
+                    if (purchased != null) {
+                        Debug.Log($"[SDKManager] Offer purchased successfully: {purchased.Id}");
+
+                        RegisterRewards(purchased.Rewards);
+                        callback?.Invoke(purchased);
+
+                        if (purchased.Type == OfferType.Chained)
+                            voodooSDKInstance.OfferSystem.GetChainedOffers(
+                                this,
+                                nextOffer => {
+                                    if (nextOffer != null) {
+                                        Debug.Log($"[SDKManager] Next chained offer: {nextOffer.Id}");
+                                        UIManager.Instance.LoadPopUpWindow(WindowType.ChainedOffer, nextOffer);
+                                    }
+                                    else {
+                                        Debug.Log("[SDKManager] No further chained offers available.");
+                                    }
+                                }
+                            );
                     }
                     else {
                         Debug.LogWarning($"[SDKManager] Failed to finalize purchase of offer {offerId}");

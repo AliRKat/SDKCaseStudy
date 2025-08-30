@@ -125,15 +125,32 @@ namespace ExampleGame.Code.Managers {
 
                 case GameAction.BuyOffer:
                     switch (data) {
+                        // --- Single / Chained ---
                         case SingleOfferWindowController singleWindow: {
                             var initData = singleWindow.GetInitData<SingleOfferWindowInitData>();
                             if (initData != null)
                                 GameManager.Instance.SDKManager.HandleBuyOffer(initData.offerId, offer => {
-                                    if (offer != null)
+                                    if (offer != null) {
                                         Debug.Log($"Player bought {offer.Id}, Rewards: {offer.GetRewardsString()}");
-                                    else
+
+                                        var hasNext = !string.IsNullOrEmpty(offer.NextOfferId);
+
+                                        singleWindow.Close();
+
+                                        if (hasNext) {
+                                            Debug.Log($"[Chained] Next offer in chain: {offer.NextOfferId}");
+                                            GameManager.Instance.SDKManager.GetChainedOfferWrapper(next => {
+                                                if (next != null)
+                                                    LoadPopUpWindow(WindowType.SingleOffer, next);
+                                                else
+                                                    Debug.Log("[Chained] No further chained offer found.");
+                                            });
+                                        }
+                                    }
+                                    else {
                                         Debug.LogWarning("Purchase failed");
-                                    singleWindow.Close();
+                                        singleWindow.Close();
+                                    }
                                 });
                             break;
                         }
@@ -160,16 +177,13 @@ namespace ExampleGame.Code.Managers {
                     }
 
                     break;
-
-                default:
-                    Debug.LogWarning($"[UIManager][HandleGameAction] Unhandled action: {action}");
-                    break;
             }
         }
 
         public void LoadPopUpWindow(WindowType windowType, object data = null) {
             switch (windowType) {
                 case WindowType.SingleOffer:
+                case WindowType.ChainedOffer:
                     if (data is Offer offer) {
                         var windowInitData = new SingleOfferWindowInitData {
                             offerId = offer.Id,
@@ -183,7 +197,7 @@ namespace ExampleGame.Code.Managers {
                             return;
                         }
 
-                        ShowWindow(windowType, windowInitData);
+                        ShowWindow(WindowType.SingleOffer, windowInitData);
                     }
 
                     break;
@@ -267,10 +281,10 @@ namespace ExampleGame.Code.Managers {
                 _activeWindow = null;
             }
 
-            if (_windowQueue.Count > 0) {
-                var (nextType, nextData) = _windowQueue.Dequeue();
-                ShowWindow(nextType, nextData);
-            }
+            if (_windowQueue.Count > 0)
+                //var (nextType, nextData) = _windowQueue.Dequeue();
+                // ShowWindow(nextType, nextData);
+                _windowQueue.Dequeue();
         }
 
         private void UpdateHUD() {

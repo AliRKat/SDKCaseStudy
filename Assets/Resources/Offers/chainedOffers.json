@@ -1,0 +1,92 @@
+{
+  "offers": [
+    {
+      "id": "starter_chain_offer",
+      "type": "Chained",
+      "trigger": "MANUAL_SHOW",
+      "price": {
+        "currency": "Coins",
+        "amount": 200
+      },
+      "rewards": [
+        {
+          "itemId": "Gems",
+          "amount": 5
+        }
+      ],
+      "nextOfferId": "chain_offer_2",
+      "conditions": []
+    },
+    {
+      "id": "chain_offer_2",
+      "type": "Chained",
+      "trigger": "MANUAL_SHOW",
+      "previousId": "starter_chain_offer",
+      "price": {
+        "currency": "USD",
+        "amount": 2
+      },
+      "rewards": [
+        {
+          "itemId": "Coins",
+          "amount": 500
+        }
+      ],
+      "nextOfferId": "chain_offer_3",
+      "conditions": []
+    },
+    {
+      "id": "chain_offer_3",
+      "type": "Chained",
+      "trigger": "MANUAL_SHOW",
+      "previousId": "chain_offer_2",
+      "price": {
+        "currency": "EUR",
+        "amount": 2
+      },
+      "rewards": [
+        {
+          "itemId": "Tokens",
+          "amount": 3
+        }
+      ],
+      "nextOfferId": "chain_offer_4",
+      "conditions": []
+    },
+    {
+      "id": "chain_offer_4",
+      "type": "Chained",
+      "trigger": "MANUAL_SHOW",
+      "previousId": "chain_offer_3",
+      "price": {
+        "currency": "Coins",
+        "amount": 400
+      },
+      "rewards": [
+        {
+          "itemId": "Gems",
+          "amount": 10
+        }
+      ],
+      "nextOfferId": "chain_offer_5",
+      "conditions": []
+    },
+    {
+      "id": "chain_offer_5",
+      "type": "Chained",
+      "trigger": "MANUAL_SHOW",
+      "previousId": "chain_offer_4",
+      "price": {
+        "currency": "USD",
+        "amount": 5
+      },
+      "rewards": [
+        {
+          "itemId": "Tokens",
+          "amount": 5
+        }
+      ],
+      "conditions": []
+    }
+  ]
+}

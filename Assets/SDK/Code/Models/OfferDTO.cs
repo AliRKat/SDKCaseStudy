@@ -45,6 +45,7 @@ namespace SDK.Code.Models {
         public string id;
         public string type;
         public string trigger;
+        public string previousId;
         public string nextOfferId;
 
         public OfferPriceDTO price;
